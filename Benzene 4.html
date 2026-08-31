@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Smart — Electrophilic Aromatic Substitution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-900:#0D1015;
+    --ink-800:#171B22;
+    --ink-700:#232935;
+    --ink-600:#333B4A;
+    --parchment:#ECE5D3;
+    --parchment-dim:#D8D0BA;
+    --gold:#CBA135;
+    --gold-dim:#8f7228;
+    --ember:#D1502F;
+    --teal:#4F8F82;
+    --text:#E9E4D6;
+    --muted:#909AAC;
+    --danger:#C1452F;
+    --radius:14px;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 600px at 85% -10%, rgba(203,161,53,0.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(79,143,130,0.10), transparent 60%),
+      var(--ink-900);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+  }
+  h1,h2,h3,h4{ font-family:'Fraunces', serif; font-weight:600; margin:0 0 .4em; letter-spacing:.2px;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  ::selection{ background:var(--gold); color:var(--ink-900);}
+  a{color:var(--gold);}
+  button{font-family:inherit;}
+
+  /* ---------- Header / Hero ---------- */
+  header.hero{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:56px 28px 20px;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--gold);
+    border:1px solid var(--gold-dim);
+    padding:5px 12px; border-radius:999px;
+    background:rgba(203,161,53,0.07);
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--ember);box-shadow:0 0 8px var(--ember);}
+  h1.title{
+    font-size:clamp(2.4rem, 5.5vw, 4.1rem);
+    margin-top:18px;
+    color:var(--text);
+    line-height:1.02;
+  }
+  h1.title em{ font-style:italic; color:var(--gold);}
+  p.subtitle{
+    max-width:640px;
+    color:var(--muted);
+    font-size:1.05rem;
+    margin-top:14px;
+  }
+
+  /* ---------- Nav / reaction-pathway track ---------- */
+  .pathway-wrap{
+    max-width:var(--maxw);
+    margin:34px auto 0;
+    padding:0 28px;
+    position:relative;
+  }
+  svg.track{ width:100%; height:34px; display:block; overflow:visible;}
+  svg.track path{ fill:none; stroke:var(--ink-600); stroke-width:2; stroke-dasharray:1 8; stroke-linecap:round;}
+  #electrophile-marker{
+    position:absolute;
+    top:-9px;
+    width:26px; height:26px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #f4d98a, var(--gold) 60%, var(--gold-dim));
+    box-shadow:0 0 16px rgba(203,161,53,.65), 0 0 2px #fff inset;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:var(--ink-900);
+    transition:left .45s cubic-bezier(.65,.05,.36,1);
+    pointer-events:none;
+  }
+  nav.tabs{
+    max-width:var(--maxw);
+    margin:0 auto 40px;
+    padding:0 28px;
+    display:flex; flex-wrap:wrap; gap:10px;
+  }
+  nav.tabs button{
+    flex:1 1 150px;
+    background:var(--ink-800);
+    border:1px solid var(--ink-700);
+    color:var(--muted);
+    padding:14px 12px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    text-align:left;
+    transition:border-color .2s, color .2s, background .2s, transform .15s;
+  }
+  nav.tabs button .num{
+    display:block; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ember); margin-bottom:4px; letter-spacing:.08em;
+  }
+  nav.tabs button .lbl{ display:block; font-weight:600; color:var(--text); font-size:.94rem;}
+  nav.tabs button:hover{ transform:translateY(-2px); border-color:var(--gold-dim);}
+  nav.tabs button.active{
+    border-color:var(--gold);
+    background:linear-gradient(180deg, rgba(203,161,53,.14), rgba(203,161,53,.03));
+  }
+  nav.tabs button.active .lbl{ color:var(--gold);}
+
+  main{ max-width:var(--maxw); margin:0 auto; padding:0 28px 100px;}
+  section.panel{ display:none; animation:fade .35s ease;}
+  section.panel.active{ display:block;}
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+  .section-head{ margin-bottom:26px; max-width:760px;}
+  .section-head h2{ font-size:1.9rem;}
+  .section-head p{ color:var(--muted); margin:0;}
+
+  /* ---------- Overview ---------- */
+  .rules-panel{
+    background:var(--ink-800);
+    border:1px solid var(--ink-700);
+    border-radius:var(--radius);
+    padding:22px 24px;
+    margin-bottom:30px;
+  }
+  .rules-panel h3{ color:var(--gold); font-size:1.1rem;}
+  .rules-panel ol{ margin:10px 0 0; padding-left:20px; color:var(--text);}
+  .rules-panel li{ margin-bottom:8px;}
+  .rules-panel li::marker{ color:var(--ember); font-family:'IBM Plex Mono',monospace; font-weight:600;}
+
+  .card-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;}
+  .rxn-card{
+    background:var(--ink-800);
+    border:1px solid var(--ink-700);
+    border-radius:var(--radius);
+    padding:20px;
+    position:relative;
+    overflow:hidden;
+  }
+  .rxn-card::before{
+    content:"";
+    position:absolute; inset:0 0 auto 0; height:3px;
+    background:linear-gradient(90deg, var(--ember), var(--gold));
+  }
+  .rxn-card h4{ font-size:1.15rem; margin-bottom:2px;}
+  .rxn-card .electro{
+    display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:12.5px;
+    color:var(--teal); background:rgba(79,143,130,.12); border:1px solid rgba(79,143,130,.35);
+    padding:2px 8px; border-radius:6px; margin-bottom:12px;
+  }
+  .rxn-card ul{ margin:0; padding-left:18px; color:var(--muted); font-size:.93rem;}
+  .rxn-card li{ margin-bottom:6px;}
+  .rxn-card li::marker{ color:var(--gold);}
+
+  /* ---------- Diagrams ---------- */
+  .pill-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;}
+  .pill{
+    background:var(--ink-800); border:1px solid var(--ink-700); color:var(--muted);
+    padding:8px 16px; border-radius:999px; font-size:.88rem; cursor:pointer; transition:.2s;
+  }
+  .pill.active{ background:var(--gold); color:var(--ink-900); border-color:var(--gold); font-weight:600;}
+  .pill:hover:not(.active){ border-color:var(--gold-dim); color:var(--text);}
+
+  .diagram-grid{ display:grid; grid-template-columns:1.1fr 1.4fr; gap:26px; align-items:start;}
+  @media(max-width:820px){ .diagram-grid{ grid-template-columns:1fr;} }
+
+  .ring-box{
+    background:var(--ink-800); border:1px solid var(--ink-700); border-radius:var(--radius);
+    padding:20px; text-align:center;
+  }
+  .ring-box svg{ width:100%; max-width:280px; height:auto;}
+  .ring-caption{ margin-top:10px; font-size:.85rem; color:var(--muted); min-height:34px;}
+
+  .steps-col .step{
+    background:var(--ink-800); border:1px solid var(--ink-700); border-radius:12px;
+    padding:14px 16px; margin-bottom:10px; cursor:pointer; transition:.2s;
+  }
+  .steps-col .step:hover{ border-color:var(--gold-dim);}
+  .steps-col .step.open{ border-color:var(--gold); background:linear-gradient(180deg, rgba(203,161,53,.12), rgba(203,161,53,.02));}
+  .steps-col .step .head{ display:flex; justify-content:space-between; align-items:center; font-weight:600; color:var(--text); font-size:.95rem;}
+  .steps-col .step .chevron{ color:var(--gold); transition:transform .2s;}
+  .steps-col .step.open .chevron{ transform:rotate(90deg);}
+  .steps-col .step .body{ display:none; margin-top:10px; padding-top:10px; border-top:1px dashed var(--ink-600);}
+  .steps-col .step.open .body{ display:block;}
+  .steps-col .eq{ display:block; font-family:'IBM Plex Mono',monospace; color:var(--gold); font-size:.86rem; margin-bottom:6px; word-break:break-word;}
+  .steps-col .note{ color:var(--muted); font-size:.88rem; margin:0;}
+
+  .resonance-box{
+    margin-top:22px; background:var(--ink-800); border:1px solid var(--ink-700); border-radius:var(--radius); padding:20px;
+  }
+  .resonance-box h3{ font-size:1.05rem; color:var(--gold); margin-bottom:4px;}
+  .resonance-box > p{ color:var(--muted); font-size:.9rem; margin-top:0;}
+  .res-controls{ display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 18px;}
+  .res-controls button{
+    background:var(--ink-900); border:1px solid var(--ink-700); color:var(--muted);
+    padding:7px 14px; border-radius:8px; cursor:pointer; font-size:.85rem;
+  }
+  .res-controls button.active{ border-color:var(--ember); color:var(--ember); font-weight:600;}
+  .res-view{ display:flex; gap:24px; align-items:center; flex-wrap:wrap;}
+  .res-view svg{ width:220px; height:220px; flex:0 0 auto;}
+  .res-note{ color:var(--text); font-size:.92rem; max-width:320px;}
+
+  /* ---------- Mini map ---------- */
+  .mm-grid{ display:grid; grid-template-columns:280px 1fr; gap:18px;}
+  @media(max-width:760px){ .mm-grid{ grid-template-columns:1fr;} }
+  .mm-list{ display:flex; flex-direction:column; gap:6px;}
+  .mm-list button{
+    text-align:left; background:var(--ink-800); border:1px solid var(--ink-700); color:var(--muted);
+    padding:12px 14px; border-radius:10px; cursor:pointer; font-size:.9rem; transition:.2s;
+  }
+  .mm-list button:hover{ border-color:var(--gold-dim); color:var(--text);}
+  .mm-list button.active{ border-color:var(--gold); background:rgba(203,161,53,.1); color:var(--gold); font-weight:600;}
+  .mm-display{
+    background:var(--ink-800); border:1px solid var(--ink-700); border-radius:var(--radius);
+    padding:26px; min-height:260px;
+  }
+  .mm-display h3{ color:var(--gold); font-size:1.25rem;}
+  .mm-display p{ color:var(--text); font-size:.98rem;}
+  .mm-empty{ color:var(--muted); font-style:italic;}
+
+  /* ---------- Flash cards ---------- */
+  .fc-toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;}
+  .fc-toolbar .count{ color:var(--muted); font-size:.9rem;}
+  .fc-toolbar button{
+    background:var(--ink-800); border:1px solid var(--gold-dim); color:var(--gold);
+    padding:8px 16px; border-radius:8px; cursor:pointer; font-size:.86rem;
+  }
+  .fc-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:16px; perspective:1200px;}
+  .fc{ height:170px; cursor:pointer;}
+  .fc-inner{
+    position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d;
+  }
+  .fc.flipped .fc-inner{ transform:rotateY(180deg);}
+  .fc-face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    border-radius:12px; padding:16px; display:flex; align-items:center; justify-content:center;
+    text-align:center; font-size:.92rem; border:1px solid var(--ink-700);
+  }
+  .fc-front{ background:var(--ink-800); color:var(--text);}
+  .fc-front::before{ content:"Q"; position:absolute; top:10px; left:12px; font-family:'IBM Plex Mono',monospace; color:var(--ember); font-size:11px;}
+  .fc-back{ background:linear-gradient(160deg, rgba(79,143,130,.18), var(--ink-800)); color:var(--parchment); transform:rotateY(180deg);}
+  .fc-back::before{ content:"A"; position:absolute; top:10px; left:12px; font-family:'IBM Plex Mono',monospace; color:var(--teal); font-size:11px;}
+
+  /* ---------- Quiz ---------- */
+  .quiz-toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;}
+  .score-pill{
+    font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:var(--gold);
+    border:1px solid var(--gold-dim); padding:6px 14px; border-radius:999px; background:rgba(203,161,53,.07);
+  }
+  .quiz-toolbar button.primary{
+    background:var(--ember); border:none; color:#fff; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:.9rem;
+  }
+  .quiz-toolbar button.ghost{
+    background:transparent; border:1px solid var(--ink-600); color:var(--muted); padding:10px 16px; border-radius:8px; cursor:pointer; font-size:.9rem;
+  }
+  .q-item{
+    background:var(--ink-800); border:1px solid var(--ink-700); border-radius:var(--radius); padding:18px 20px; margin-bottom:14px;
+  }
+  .q-item .q-num{ font-family:'IBM Plex Mono',monospace; color:var(--ember); font-size:12px; letter-spacing:.06em;}
+  .q-item .q-text{ margin:6px 0 14px; font-size:1rem; color:var(--text);}
+  .q-options{ display:grid; gap:8px;}
+  .q-opt{
+    display:flex; align-items:center; gap:10px;
+    background:var(--ink-900); border:1px solid var(--ink-700); border-radius:9px; padding:10px 14px; cursor:pointer; font-size:.92rem; color:var(--text);
+    transition:.15s;
+  }
+  .q-opt:hover{ border-color:var(--gold-dim);}
+  .q-opt input{ accent-color:var(--gold);}
+  .q-opt.correct{ border-color:var(--teal); background:rgba(79,143,130,.14);}
+  .q-opt.wrong{ border-color:var(--danger); background:rgba(193,69,47,.14);}
+  .q-item.locked .q-opt{ cursor:default; pointer-events:none;}
+
+  footer{
+    max-width:var(--maxw); margin:0 auto; padding:30px 28px 60px; color:var(--muted); font-size:.82rem;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; border-top:1px solid var(--ink-700);
+  }
+  footer strong{ color:var(--text);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="eyebrow"><span class="dot"></span> Aromatic Chemistry Study Set</span>
+  <h1 class="title">Study <em>Smart</em></h1>
+  <p class="subtitle">Every mechanism, every intermediate, every rule of electrophilic aromatic substitution — condensed into one working set. No lecture-length reading required.</p>
+</header>
+
+<div class="pathway-wrap">
+  <svg class="track" preserveAspectRatio="none"><path d="M0,17 L2000,17"/></svg>
+  <div id="electrophile-marker">+</div>
+</div>
+
+<nav class="tabs" id="tabs">
+  <button data-target="overview" class="active"><span class="num">01</span><span class="lbl">Overview</span></button>
+  <button data-target="diagrams"><span class="num">02</span><span class="lbl">Interactive Diagrams</span></button>
+  <button data-target="minimap"><span class="num">03</span><span class="lbl">Mini Map</span></button>
+  <button data-target="flashcards"><span class="num">04</span><span class="lbl">Flash Cards</span></button>
+  <button data-target="quiz"><span class="num">05</span><span class="lbl">Quiz Bank</span></button>
+</nav>
+
+<main>
+
+  <!-- ===================== 01 OVERVIEW ===================== -->
+  <section class="panel active" id="overview">
+    <div class="section-head">
+      <h2>The rules, not the reading</h2>
+      <p>Six reactions, one shared mechanism. Here is what actually needs to stick.</p>
+    </div>
+
+    <div class="rules-panel">
+      <h3>Golden rules of electrophilic aromatic substitution</h3>
+      <ol>
+        <li>Every reaction needs an electrophile strong enough to attack the electron-rich ring.</li>
+        <li>Ring attack — formation of the arenium ion — is always the slow, rate-determining step.</li>
+        <li>Proton loss that restores the aromatic ring is always fast; aromaticity is the driving force.</li>
+        <li>Positive charge in the arenium ion sits ortho and para to the new group — never meta.</li>
+        <li>A Lewis or Brønsted acid (H₂SO₄, AlCl₃, FeCl₃) is usually needed to generate or polarize the electrophile.</li>
+        <li>Equilibrium reactions (sulfonation ⇌ desulfonation) can be pushed either way by changing acid strength and water/steam conditions.</li>
+      </ol>
+    </div>
+
+    <div class="card-grid">
+      <div class="rxn-card">
+        <h4>Nitration</h4>
+        <span class="electro">Electrophile: NO₂⁺</span>
+        <ul>
+          <li>H₂SO₄ + HNO₃ ⇌ H₃O⁺ + 2 HSO₄⁻ + NO₂⁺</li>
+          <li>H₂SO₄ = acid, HNO₃ = base in this equilibrium</li>
+          <li>Nitronium salts (NO₂⁺ClO₄⁻, NO₂⁺BF₄⁻) nitrate arenes directly at room temperature (Olah)</li>
+        </ul>
+      </div>
+      <div class="rxn-card">
+        <h4>Sulfonation</h4>
+        <span class="electro">Electrophile: SO₃</span>
+        <ul>
+          <li>SO₃ is electron-deficient — a Lewis acid, despite no formal charge</li>
+          <li>Fuming/concentrated H₂SO₄ (excess SO₃) drives the forward reaction</li>
+          <li>Product: benzenesulfonic acid — a strong, highly dissociated acid</li>
+        </ul>
+      </div>
+      <div class="rxn-card">
+        <h4>Desulfonation</h4>
+        <span class="electro">Electrophile: H⁺</span>
+        <ul>
+          <li>Exact reverse of sulfonation (microscopic reversibility)</li>
+          <li>Dilute acid + superheated steam, 100–175 °C</li>
+          <li>Removing volatile hydrocarbon by steam distillation pulls equilibrium backward</li>
+        </ul>
+      </div>
+      <div class="rxn-card">
+        <h4>Friedel–Crafts Alkylation</h4>
+        <span class="electro">Electrophile: R⁺</span>
+        <ul>
+          <li>RCl + AlCl₃ ⇌ R⁺ + AlCl₄⁻ (Lewis acid–base equilibrium)</li>
+          <li>Alternative path: R⁺ transferred directly from the polar complex, no free carbocation</li>
+          <li>AlCl₃ and HCl regenerated — catalytic cycle</li>
+        </ul>
+      </div>
+      <div class="rxn-card">
+        <h4>Friedel–Crafts Acylation</h4>
+        <span class="electro">Electrophile: RCO⁺</span>
+        <ul>
+          <li>Acylium ion formed from AlCl₃ + acyl chloride complex, C–Cl cleavage</li>
+          <li>Resonance-stabilized across C and O</li>
+          <li>Product (aryl ketone) deactivates the ring — stops at monoacylation</li>
+        </ul>
+      </div>
+      <div class="rxn-card">
+        <h4>Halogenation</h4>
+        <span class="electro">Electrophile: Cl⁺ (as complex)</span>
+        <ul>
+          <li>Cl₂ + FeCl₃ → polarized complex, no free Cl⁺ ever forms</li>
+          <li>Chlorine transfers to the ring without its bonding electrons</li>
+          <li>Very electron-rich arenes react with X₂ even without a catalyst</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 DIAGRAMS ===================== -->
+  <section class="panel" id="diagrams">
+    <div class="section-head">
+      <h2>Mechanisms, step by step</h2>
+      <p>Pick a reaction, open each step, and watch where the electrons and charges actually go.</p>
+    </div>
+
+    <div class="pill-row" id="rxn-pills"></div>
+
+    <div class="diagram-grid">
+      <div class="ring-box">
+        <svg id="ring-svg" viewBox="0 0 200 200"></svg>
+        <div class="ring-caption" id="ring-caption">Select a step to see what happens to the ring.</div>
+      </div>
+      <div class="steps-col" id="steps-col"></div>
+    </div>
+
+    <div class="resonance-box">
+      <h3>The arenium ion — three faces of one hybrid</h3>
+      <p>The intermediate carbocation isn't three different ions. It's one ion, and these are three ways of drawing where its positive charge sits.</p>
+      <div class="res-controls" id="res-controls"></div>
+      <div class="res-view">
+        <svg id="res-svg" viewBox="0 0 200 200"></svg>
+        <p class="res-note" id="res-note"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 03 MINI MAP ===================== -->
+  <section class="panel" id="minimap">
+    <div class="section-head">
+      <h2>Topic map</h2>
+      <p>Click a heading — the full explanation opens right here, on the right.</p>
+    </div>
+    <div class="mm-grid">
+      <div class="mm-list" id="mm-list"></div>
+      <div class="mm-display" id="mm-display">
+        <p class="mm-empty">Choose a topic from the list to read it here.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 04 FLASH CARDS ===================== -->
+  <section class="panel" id="flashcards">
+    <div class="section-head">
+      <h2>Flash cards</h2>
+      <p>Click a card to flip it. Everything above is fair game.</p>
+    </div>
+    <div class="fc-toolbar">
+      <span class="count" id="fc-count"></span>
+      <button id="fc-shuffle">Shuffle cards</button>
+    </div>
+    <div class="fc-grid" id="fc-grid"></div>
+  </section>
+
+  <!-- ===================== 05 QUIZ ===================== -->
+  <section class="panel" id="quiz">
+    <div class="section-head">
+      <h2>Quiz bank</h2>
+      <p>Answer choices are reshuffled every time — the correct option never sits in the same place twice.</p>
+    </div>
+    <div class="quiz-toolbar">
+      <span class="score-pill" id="quiz-score">0 / 0 answered</span>
+      <div style="display:flex; gap:10px;">
+        <button class="ghost" id="quiz-reshuffle">Reshuffle quiz</button>
+        <button class="primary" id="quiz-check">Check answers</button>
+      </div>
+    </div>
+    <div id="quiz-list"></div>
+  </section>
+
+</main>
+
+<footer>
+  <span>Study Smart — Electrophilic Aromatic Substitution</span>
+  <span>© <strong>Anmar Taha</strong>. All rights reserved.</span>
+</footer>
+
+<script>
+/* ============================================================
+   NAVIGATION + ELECTROPHILE MARKER
+============================================================ */
+const tabButtons = document.querySelectorAll('nav.tabs button');
+const panels = document.querySelectorAll('section.panel');
+const marker = document.getElementById('electrophile-marker');
+
+function placeMarker(btn){
+  const navRect = document.getElementById('tabs').getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  const left = (btnRect.left - navRect.left) + (btnRect.width/2) - 13;
+  marker.style.left = left + 'px';
+}
+
+function activateTab(target){
+  tabButtons.forEach(b => b.classList.toggle('active', b.dataset.target === target));
+  panels.forEach(p => p.classList.toggle('active', p.id === target));
+  const activeBtn = document.querySelector('nav.tabs button[data-target="'+target+'"]');
+  placeMarker(activeBtn);
+}
+
+tabButtons.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.target)));
+window.addEventListener('resize', () => {
+  const active = document.querySelector('nav.tabs button.active');
+  if(active) placeMarker(active);
+});
+window.addEventListener('load', () => {
+  const active = document.querySelector('nav.tabs button.active');
+  if(active) placeMarker(active);
+});
+
+/* ============================================================
+   DIAGRAM DATA
+============================================================ */
+const diagramData = {
+  nitration: {
+    label:'Nitration',
+    steps:[
+      {label:'Step 1 — Generate the electrophile', eq:'HNO3 + 2 H2SO4 ⇌ H3O+ + 2 HSO4- + NO2+',
+       note:'Sulfuric acid (the stronger acid) protonates and helps dehydrate nitric acid, releasing the nitronium ion, NO2+.', ring:'none'},
+      {label:'Step 2 — Attack the ring (slow)', eq:'C6H6 + NO2+ ⇌ arenium ion',
+       note:'NO2+ bonds to one ring carbon using the pi electrons, forming the resonance-stabilized arenium ion. This is the rate-determining step.', ring:'attack'},
+      {label:'Step 3 — Restore aromaticity (fast)', eq:'arenium ion + HSO4- → C6H5NO2 + H2SO4',
+       note:'Bisulfate abstracts the proton from the sp3 carbon, regenerating the aromatic ring with NO2 in place.', ring:'lose'}
+    ]
+  },
+  sulfonation: {
+    label:'Sulfonation',
+    steps:[
+      {label:'Step 1 — Generate the electrophile', eq:'2 H2SO4 ⇌ H3O+ + HSO4- + SO3',
+       note:'An acid-base equilibrium between sulfuric acid molecules releases SO3. Fuming acid supplies it in excess.', ring:'none'},
+      {label:'Step 2 — Attack the ring', eq:'C6H6 + SO3 → arenium ion (zwitterion)',
+       note:'SO3 is electron-deficient — a Lewis acid — even though it carries no formal positive charge, and it bonds to the ring.', ring:'attack'},
+      {label:'Step 3 — Restore aromaticity (fast)', eq:'arenium ion → C6H5SO3-  →(H+) C6H5SO3H',
+       note:'Loss of a proton gives the resonance-stabilized sulfonate; picking up H+ gives benzenesulfonic acid, a strong, highly dissociated acid.', ring:'lose'}
+    ]
+  },
+  desulfonation: {
+    label:'Desulfonation',
+    steps:[
+      {label:'Step 1 — Protonate the ring (slow)', eq:'C6H5SO3- + H+ ⇌ arenium ion',
+       note:'The electrophile here is simply a proton. It attacks the carbon already bearing the SO3- group.', ring:'attack'},
+      {label:'Step 2 — Expel SO3 (fast)', eq:'arenium ion ⇌ C6H6 + SO3',
+       note:'The ring ejects SO3 and regains full aromaticity — the exact reverse of sulfonation, carbon for carbon.', ring:'lose'},
+      {label:'Conditions that favor this direction', eq:'Dilute acid + superheated steam, 100–175 °C',
+       note:'High water concentration and steam-distilling away the volatile hydrocarbon pull the equilibrium toward benzene.', ring:'none'}
+    ]
+  },
+  alkylation: {
+    label:'F-C Alkylation',
+    steps:[
+      {label:'Step 1 — Generate the electrophile', eq:'RCl + AlCl3 ⇌ R+ + AlCl4-',
+       note:'A Lewis acid–base equilibrium. In some cases R+ never fully separates — it is handed off from a polar complex instead.', ring:'none'},
+      {label:'Step 2 — Attack the ring (slow)', eq:'C6H6 + R+ → arenium ion',
+       note:'The carbocation bonds to the ring carbon, forming the resonance-stabilized arenium ion.', ring:'attack'},
+      {label:'Step 3 — Restore aromaticity (fast)', eq:'arenium ion + AlCl4- → C6H5R + HCl + AlCl3',
+       note:'AlCl4- removes the proton; both HCl and the AlCl3 catalyst are regenerated.', ring:'lose'}
+    ]
+  },
+  acylation: {
+    label:'F-C Acylation',
+    steps:[
+      {label:'Step 1 — Generate the electrophile', eq:'RCOCl + AlCl3 → RCO+ + AlCl4-',
+       note:'AlCl3 complexes with the chlorine of the acyl chloride; C–Cl cleavage releases the resonance-stabilized acylium ion.', ring:'none'},
+      {label:'Step 2 — Attack the ring (slow)', eq:'C6H6 + RCO+ → arenium ion',
+       note:'The acylium ion bonds to the ring, forming the arenium ion intermediate.', ring:'attack'},
+      {label:'Step 3 — Restore aromaticity (fast)', eq:'arenium ion − H+ → C6H5COR',
+       note:'Loss of a proton gives the aryl ketone. That ketone deactivates the ring, so the reaction stops at one substitution.', ring:'lose'}
+    ]
+  },
+  halogenation: {
+    label:'Halogenation',
+    steps:[
+      {label:'Step 1 — Polarize the halogen', eq:'Cl2 + FeCl3 → Cl···Cl+···FeCl3-',
+       note:'No free Cl+ ion actually forms. FeCl3 polarizes the Cl–Cl bond into a complex instead.', ring:'none'},
+      {label:'Step 2 — Attack the ring (slow)', eq:'C6H6 + complex → arenium ion + FeCl4-',
+       note:'Chlorine is transferred to the ring without its bonding electrons, forming the arenium ion.', ring:'attack'},
+      {label:'Step 3 — Restore aromaticity (fast)', eq:'arenium ion + FeCl4- → C6H5Cl + HCl + FeCl3',
+       note:'FeCl4- abstracts the proton; the FeCl3 catalyst is regenerated.', ring:'lose'}
+    ]
+  }
+};
+
+const pillRow = document.getElementById('rxn-pills');
+Object.keys(diagramData).forEach((key, i) => {
+  const p = document.createElement('button');
+  p.className = 'pill' + (i===0 ? ' active' : '');
+  p.textContent = diagramData[key].label;
+  p.dataset.key = key;
+  p.addEventListener('click', () => loadReaction(key));
+  pillRow.appendChild(p);
+});
+
+function ringSVG(state){
+  // hexagon benzene ring; state: none | attack | lose
+  const cx=100, cy=100, r=55;
+  let pts=[];
+  for(let i=0;i<6;i++){
+    const a = (Math.PI/180)*(60*i - 90);
+    pts.push([cx + r*Math.cos(a), cy + r*Math.sin(a)]);
+  }
+  const hex = pts.map(p=>p.join(',')).join(' ');
+  let extra = '';
+  if(state==='attack'){
+    extra = `<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="9" fill="#D1502F"/>
+             <text x="${pts[0][0]}" y="${pts[0][1]+4}" font-size="10" fill="#fff" text-anchor="middle" font-family="IBM Plex Mono">E</text>
+             <text x="${cx}" y="${cy+5}" font-size="26" fill="#CBA135" text-anchor="middle" font-weight="700">+</text>`;
+  } else if(state==='lose'){
+    extra = `<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="9" fill="#4F8F82"/>
+             <text x="${pts[0][0]}" y="${pts[0][1]+4}" font-size="10" fill="#fff" text-anchor="middle" font-family="IBM Plex Mono">E</text>`;
+  }
+  return `<polygon points="${hex}" fill="none" stroke="#ECE5D3" stroke-width="2.5"/>${extra}`;
+}
+
+const captions = {
+  none:'No new bond on the ring yet — this step happens elsewhere.',
+  attack:'The electrophile (E) has just bonded to the ring. Positive charge appears — this is the arenium ion.',
+  lose:'A proton has left; the ring is fully aromatic again with the new group (E) attached.'
+};
+
+function loadReaction(key){
+  document.querySelectorAll('#rxn-pills .pill').forEach(p => p.classList.toggle('active', p.dataset.key===key));
+  const data = diagramData[key];
+  const stepsCol = document.getElementById('steps-col');
+  stepsCol.innerHTML = '';
+  data.steps.forEach((s, idx) => {
+    const div = document.createElement('div');
+    div.className = 'step' + (idx===0 ? ' open':'');
+    div.innerHTML = `<div class="head"><span>${s.label}</span><span class="chevron">›</span></div>
+      <div class="body"><span class="eq mono">${s.eq}</span><p class="note">${s.note}</p></div>`;
+    div.addEventListener('click', () => {
+      const wasOpen = div.classList.contains('open');
+      stepsCol.querySelectorAll('.step').forEach(el=>el.classList.remove('open'));
+      if(!wasOpen) div.classList.add('open');
+      document.getElementById('ring-svg').innerHTML = ringSVG(wasOpen ? 'none' : s.ring);
+      document.getElementById('ring-caption').textContent = wasOpen ? 'Select a step to see what happens to the ring.' : captions[s.ring];
+    });
+    stepsCol.appendChild(div);
+  });
+  document.getElementById('ring-svg').innerHTML = ringSVG(data.steps[0].ring);
+  document.getElementById('ring-caption').textContent = captions[data.steps[0].ring];
+}
+loadReaction('nitration');
+
+/* ---- Resonance viewer ---- */
+const resStructures = {
+  I:  {chargeIdx:1, label:'Structure I', note:'Positive charge localized on the ortho carbon nearest the substituent.'},
+  II: {chargeIdx:3, label:'Structure II', note:'Positive charge localized on the para carbon.'},
+  III:{chargeIdx:5, label:'Structure III', note:'Positive charge localized on the other ortho carbon.'},
+  IV: {chargeIdx:null, label:'Hybrid (IV)', note:'The real ion: charge is delocalized over both ortho carbons and the para carbon at once — shown with a dashed ring.'}
+};
+const resControls = document.getElementById('res-controls');
+Object.keys(resStructures).forEach((key,i)=>{
+  const b = document.createElement('button');
+  b.textContent = key;
+  b.className = i===0 ? 'active':'';
+  b.addEventListener('click', ()=>{
+    resControls.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    drawResonance(key);
+  });
+  resControls.appendChild(b);
+});
+
+function drawResonance(key){
+  const cx=100, cy=100, r=60;
+  let pts=[];
+  for(let i=0;i<6;i++){
+    const a = (Math.PI/180)*(60*i - 90);
+    pts.push([cx + r*Math.cos(a), cy + r*Math.sin(a)]);
+  }
+  const struct = resStructures[key];
+  const dash = key==='IV' ? '4 4' : 'none';
+  const hex = pts.map(p=>p.join(',')).join(' ');
+  let charges = '';
+  if(key==='IV'){
+    [1,3,5].forEach(i=>{
+      charges += `<text x="${pts[i][0]}" y="${pts[i][1]+4}" font-size="15" fill="#CBA135" text-anchor="middle" font-weight="700">δ+</text>`;
+    });
+  } else {
+    const i = struct.chargeIdx;
+    charges = `<text x="${pts[i][0]}" y="${pts[i][1]+5}" font-size="20" fill="#D1502F" text-anchor="middle" font-weight="700">+</text>`;
+  }
+  const ipso = `<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="7" fill="#4F8F82"/>
+                <text x="${pts[0][0]}" y="${pts[0][1]-14}" font-size="9" fill="#909AAC" text-anchor="middle" font-family="IBM Plex Mono">ipso (sp3)</text>`;
+  document.getElementById('res-svg').innerHTML =
+    `<polygon points="${hex}" fill="none" stroke="#ECE5D3" stroke-width="2.5" stroke-dasharray="${dash}"/>${ipso}${charges}`;
+  document.getElementById('res-note').textContent = struct.note;
+}
+drawResonance('I');
+
+/* ============================================================
+   MINI MAP
+============================================================ */
+const mapTopics = [
+  {t:'Nitronium ion formation', body:'Sulfuric acid, the far stronger acid, protonates and dehydrates nitric acid: HNO3 + 2 H2SO4 ⇌ H3O+ + 2 HSO4- + NO2+. Nitric acid is acting as a base here. The nitronium ion is well characterized on its own — it exists in stable salts like nitronium perchlorate and nitronium fluoborate, and George Olah showed that solutions of these salts nitrate aromatic rings smoothly at room temperature.'},
+  {t:'The arenium ion and resonance', body:'Once the electrophile bonds to a ring carbon, that carbon becomes sp3 and the positive charge is pushed onto the rest of the ring. Three resonance structures (I, II, III) place that charge on each of the two ortho carbons and the para carbon in turn; the real ion is a hybrid of all three, often drawn with a dashed circle (structure IV).'},
+  {t:'Why substitution, not addition', body:'An alkene\'s carbocation intermediate simply adds a nucleophile. The arenium ion instead loses a proton, because that proton loss regenerates the aromatic ring\'s resonance stabilization. Given how stable benzene already is, this stabilization is likely the only reason the arenium ion forms in the first place.'},
+  {t:'Sulfonation mechanism', body:'Sulfonation runs on the same two-step logic. Step 1 produces SO3 through an acid-base equilibrium between sulfuric acid molecules — fuming acid, which contains excess SO3, drives this forward. SO3 is electron-poor and behaves as the electrophile even without a formal charge. It bonds to the ring, and loss of a proton yields the sulfonate anion, which then picks up a proton to give benzenesulfonic acid, itself a strong, highly dissociated acid.'},
+  {t:'Desulfonation and equilibrium control', body:'Heating an aromatic sulfonic acid with aqueous acid at 100–175 °C reverses the sulfonation exactly — the principle of microscopic reversibility guarantees the mechanism runs backward through the same intermediate. Concentrated acid and low water push the equilibrium toward the sulfonic acid; dilute acid, steam, and distilling off the volatile hydrocarbon push it back toward benzene.'},
+  {t:'Friedel–Crafts alkylation', body:'The electrophile is a carbocation, R+, generated from RCl + AlCl3 ⇌ R+ + AlCl4-, a Lewis acid-base equilibrium. In some reactions no free carbocation ever exists — instead the alkyl group is handed directly to the ring from a polar AlCl3–alkyl halide complex, without carrying its bonding electrons along. Either way, the Lewis acid AlCl3 and HCl are both regenerated at the end.'},
+  {t:'Friedel–Crafts acylation', body:'An acyl chloride complexes with AlCl3; cleaving the C–Cl bond releases the acylium ion, RCO+, whose positive charge is resonance-stabilized between carbon and oxygen. This electrophile attacks the ring exactly like the others, and losing a proton gives an aryl ketone. Because that ketone product deactivates the ring, the reaction naturally stops after a single substitution.'},
+  {t:'Halogenation mechanism', body:'Chlorine alone is not electrophilic enough for benzene. FeCl3 polarizes the Cl–Cl bond into a complex; no free Cl+ ion is actually released. Chlorine transfers to the ring from that complex without its bonding electrons, and FeCl4- then removes the proton, regenerating FeCl3. Highly electron-rich aromatics can skip the catalyst entirely and react with halogens directly.'},
+  {t:'The general two-step mechanism', body:'Every electrophilic aromatic substitution — regardless of the specific reagent YZ — follows the same two moves: an electrophile attacks the ring to form an arenium ion (slow, rate-determining), and then a base removes a proton from that ion to restore the aromatic ring (fast). What changes reaction to reaction is only how the electrophile gets made.'}
+];
+const mmList = document.getElementById('mm-list');
+const mmDisplay = document.getElementById('mm-display');
+mapTopics.forEach((topic, i) => {
+  const b = document.createElement('button');
+  b.textContent = topic.t;
+  b.addEventListener('click', () => {
+    mmList.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    mmDisplay.innerHTML = `<h3>${topic.t}</h3><p>${topic.body}</p>`;
+  });
+  mmList.appendChild(b);
+});
+
+/* ============================================================
+   FLASH CARDS
+============================================================ */
+const flashcards = [
+  {q:'What is the electrophile in nitration?', a:'The nitronium ion, NO2+.'},
+  {q:'Which acts as the acid, and which as the base, in the HNO3/H2SO4 mixture?', a:'H2SO4 is the acid; HNO3 is the (much weaker) base.'},
+  {q:'Name two stable nitronium salts.', a:'Nitronium perchlorate (NO2+ClO4-) and nitronium fluoborate (NO2+BF4-).'},
+  {q:'Who showed nitronium salts nitrate arenes at room temperature, and where?', a:'George Olah, at Case Western Reserve University, using nitromethane or acetic acid as solvent.'},
+  {q:'What is the intermediate formed after the electrophile bonds to the ring called?', a:'The arenium ion — also called the benzenonium or carbonium ion.'},
+  {q:'How many resonance structures represent the arenium ion?', a:'Three (I, II, III), commonly summarized as one hybrid, structure IV.'},
+  {q:'Where is the positive charge concentrated in the arenium ion?', a:'On the carbons ortho and para to the new substituent.'},
+  {q:'Why does the ring lose H+ instead of adding a nucleophile, unlike an alkene\'s carbocation?', a:'Losing H+ restores the ring\'s aromatic stabilization; addition would destroy it.'},
+  {q:'Which step of the mechanism is rate-determining?', a:'Formation of the arenium ion (step 2) — it is slow. Proton loss is fast.'},
+  {q:'What is the electrophile in sulfonation?', a:'Sulfur trioxide, SO3 (sometimes HSO3+).'},
+  {q:'Why can SO3 act as an electrophile without a formal charge?', a:'It is electron-deficient, so it behaves as a Lewis acid.'},
+  {q:'What conditions favor forward sulfonation?', a:'Concentrated or fuming sulfuric acid (excess SO3) and low water concentration.'},
+  {q:'What conditions favor desulfonation?', a:'Dilute acid with superheated steam, at 100–175 °C.'},
+  {q:'What principle says sulfonation and desulfonation share one mechanism in reverse?', a:'The principle of microscopic reversibility.'},
+  {q:'What is the electrophile in Friedel–Crafts alkylation?', a:'A carbocation, R+ (or a complex that transfers R+ directly).'},
+  {q:'How is R+ generated from RCl?', a:'RCl + AlCl3 ⇌ R+ + AlCl4-, a Lewis acid-base equilibrium.'},
+  {q:'In the alternative alkylation pathway, how does the alkyl group reach the ring?', a:'It transfers directly from the polar AlCl3–alkyl halide complex, without its bonding electrons.'},
+  {q:'What is the electrophile in Friedel–Crafts acylation?', a:'The acylium ion, RCO+.'},
+  {q:'What stabilizes the acylium ion?', a:'Resonance — the positive charge is shared between the carbon and the oxygen.'},
+  {q:'What product forms from Friedel–Crafts acylation of benzene?', a:'An aryl ketone.'},
+  {q:'Why does Friedel–Crafts acylation stop at one substitution?', a:'The aryl ketone product deactivates the ring toward further acylation.'},
+  {q:'What complex forms when Cl2 reacts with FeCl3?', a:'A polarized complex — chlorine bonded to a chlorine that is itself interacting with FeCl3.'},
+  {q:'Is a free Cl+ ion actually involved in aromatic chlorination?', a:'No — chlorine transfers to the ring without its bonding electrons.'},
+  {q:'What is lost from the arenium ion in the final step of halogenation, and by what?', a:'A proton, abstracted by FeCl4-, which regenerates the FeCl3 catalyst.'},
+  {q:'Can very reactive aromatics react with halogens without a catalyst?', a:'Yes — when the ring\'s electrons are especially available.'},
+  {q:'What are the two universal steps of any electrophilic aromatic substitution?', a:'(1) Electrophile attacks the ring, forming an arenium ion (slow). (2) A base removes a proton, restoring aromaticity (fast).'}
+];
+
+function renderFlashcards(list){
+  const grid = document.getElementById('fc-grid');
+  grid.innerHTML = '';
+  list.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'fc';
+    el.innerHTML = `<div class="fc-inner">
+        <div class="fc-face fc-front">${card.q}</div>
+        <div class="fc-face fc-back">${card.a}</div>
+      </div>`;
+    el.addEventListener('click', () => el.classList.toggle('flipped'));
+    grid.appendChild(el);
+  });
+  document.getElementById('fc-count').textContent = list.length + ' cards';
+}
+renderFlashcards(flashcards);
+document.getElementById('fc-shuffle').addEventListener('click', () => {
+  const shuffled = [...flashcards].sort(() => Math.random()-0.5);
+  renderFlashcards(shuffled);
+});
+
+/* ============================================================
+   QUIZ BANK
+============================================================ */
+const quizBank = [
+  {q:'What is the electrophile that attacks the ring in nitration?', c:'Nitronium ion, NO2+', w:['Nitrate ion, NO3-','Nitrosonium ion, NO+','Protonated nitric acid, H2NO3+']},
+  {q:'In the HNO3 / H2SO4 mixture, which species acts as the acid?', c:'Sulfuric acid, H2SO4', w:['Nitric acid, HNO3','Water, H2O','Bisulfate ion, HSO4-']},
+  {q:'Which of these is a known, stable nitronium salt?', c:'Nitronium perchlorate, NO2+ClO4-', w:['Sodium nitrate, NaNO3','Ammonium nitrate, NH4NO3','Silver nitrite, AgNO2']},
+  {q:'Who demonstrated that nitronium salts nitrate aromatics smoothly at room temperature?', c:'George Olah', w:['Linus Pauling','Robert Woodward','Paul Friedel']},
+  {q:'What is the intermediate formed when the electrophile bonds to the ring called?', c:'Arenium ion (benzenonium / carbonium ion)', w:['Zwitterion','Ylide','Carbanion']},
+  {q:'How many resonance contributors are typically drawn for the arenium ion?', c:'Three', w:['Two','Four','Six']},
+  {q:'Where is the positive charge most concentrated in the arenium ion?', c:'The ortho and para positions', w:['The meta positions only','The ipso position only','Spread equally over all six carbons']},
+  {q:'Why does the arenium ion lose a proton rather than add a nucleophile, unlike an alkene\'s carbocation?', c:'Losing H+ restores the ring\'s aromatic stabilization', w:['The nucleophile is too large to bond','Protons are always better leaving groups than nucleophiles','Aromatic rings cannot form new sigma bonds']},
+  {q:'Which step of electrophilic aromatic substitution is rate-determining?', c:'Formation of the arenium ion', w:['Loss of the proton','Regeneration of the catalyst','Diffusion of reagents together']},
+  {q:'What is the electrophile in aromatic sulfonation?', c:'Sulfur trioxide, SO3', w:['Sulfate ion, SO4^2-','Sulfurous acid, H2SO3','Bisulfite ion, HSO3-']},
+  {q:'Why can SO3 act as an electrophile despite carrying no formal positive charge?', c:'It is electron-deficient and behaves as a Lewis acid', w:['It spontaneously ionizes into S6+ and O2-','It is always protonated in solution first','It carries a partial negative charge on sulfur']},
+  {q:'What conditions favor the forward sulfonation reaction?', c:'Excess concentrated or fuming sulfuric acid, low water', w:['Dilute acid and superheated steam','High water concentration','Low temperature and excess base']},
+  {q:'What conditions favor desulfonation?', c:'Dilute acid with superheated steam, 100–175 °C', w:['Fuming sulfuric acid at room temperature','Concentrated acid with no water present','Strictly anhydrous conditions']},
+  {q:'Desulfonation is the reverse of sulfonation by which principle?', c:'Microscopic reversibility', w:["Le Chatelier's principle alone",'Conservation of charge','Markovnikov\'s rule']},
+  {q:'What is the electrophile in Friedel–Crafts alkylation?', c:'A carbocation, R+', w:['An alkyl radical, R•','A carbanion, R-','An alkoxide ion, RO-']},
+  {q:'What reaction generates the alkylating electrophile from RCl?', c:'RCl + AlCl3 → R+ + AlCl4-', w:['RCl + H2O → ROH + HCl','RCl + NaOH → ROH + NaCl','RCl + Cl2 → RCl2 + Cl-']},
+  {q:'In the alternative Friedel–Crafts alkylation pathway, how does the alkyl group reach the ring?', c:'Transferred directly from a polar complex, without its bonding electrons', w:['Transferred as a free radical','Transferred together with a chloride ion','It first forms an alkoxide before attacking']},
+  {q:'What is the electrophile in Friedel–Crafts acylation?', c:'The acylium ion, RCO+', w:['The acyl radical, RCO•','The acid chloride itself, RCOCl','The carboxylate ion, RCOO-']},
+  {q:'What stabilizes the acylium ion?', c:'Resonance delocalization of the positive charge onto oxygen', w:['Hydrogen bonding with the solvent','Its large physical size','Coordination with a second AlCl3']},
+  {q:'What product results from Friedel–Crafts acylation of benzene?', c:'An aryl ketone', w:['An aryl ether','An aromatic amine','An aromatic alcohol']},
+  {q:'What complex forms when Cl2 reacts with FeCl3 in halogenation?', c:'A polarized complex, Cl-Cl+ interacting with FeCl3-', w:['A free Cl+ ion in solution','FeCl6^3- and Cl2','Cl2O and FeCl2']},
+  {q:'Is a free Cl+ cation actually involved in electrophilic aromatic chlorination?', c:'No, chlorine transfers without its bonding electrons', w:['Yes, it forms freely in solution','Yes, but only at high temperature','Yes, but only with excess FeCl3']},
+  {q:'What species is lost from the arenium ion in the final step of halogenation?', c:'A proton, abstracted by FeCl4-', w:['A chloride ion','A hydride ion','An electron pair, to iron']},
+  {q:'Which aromatic compounds can react with halogens without an added Lewis acid catalyst?', c:'Highly reactive aromatics whose ring electrons are especially available', w:['All aromatic compounds, without exception','Only deactivated aromatics','Only aromatics already bearing a NO2 group']},
+  {q:'What are the two general steps common to every electrophilic aromatic substitution?', c:'Electrophile attack forming an arenium ion, then loss of a proton', w:['Electrophile attack, then addition of a nucleophile','Deprotonation, then electrophile attack','Two sequential proton transfers']},
+  {q:'Which step in the general mechanism is fast?', c:'Loss of the proton by a base', w:['Formation of the arenium ion','Diffusion of the electrophile to the ring','Formation of the electrophile itself']},
+  {q:'Why doesn\'t benzene simply add the electrophile and nucleophile across a double bond, the way an alkene does?', c:'Addition would destroy the ring\'s aromatic stabilization', w:['Benzene has no pi electrons available','A nucleophile cannot approach a six-membered ring','Benzene reacts only with radicals']},
+  {q:'What is the role of sulfuric acid in generating the nitronium ion?', c:'It protonates nitric acid and helps expel water, releasing NO2+', w:['It reduces nitric acid to nitrous acid','It acts only as an inert solvent','It oxidizes benzene directly']},
+  {q:'How is the ring\'s aromaticity finally restored after nitration?', c:'HSO4- removes a proton from the sp3 ring carbon', w:['Oxygen gas is released from the ring','The ring gains an extra hydrogen atom','Ammonia is eliminated from the intermediate']},
+  {q:'Which best describes benzenesulfonic acid, the product of sulfonation?', c:'A strong acid that is highly dissociated', w:['A weak, mostly molecular acid','A neutral, non-ionizable compound','A strong base']},
+  {q:'What is regenerated at the end of the Friedel–Crafts alkylation cycle?', c:'AlCl3, along with HCl as a by-product', w:['AlCl4-, permanently consumed','Cl2 gas','A brand-new alkyl halide']},
+  {q:'Why does Friedel–Crafts acylation cleanly give a single substitution product?', c:'The ketone product deactivates the ring, preventing further acylation', w:['Acyl chlorides never react with AlCl3','Acylation does not require any catalyst','Acylium ions are unreactive toward benzene']},
+  {q:'In the general scheme for a reagent X+Y-, what happens in the slow step?', c:'X+ (the electrophile) bonds to the ring, forming an arenium ion', w:['Y- bonds to the ring first','Both X+ and Y- add to the ring simultaneously','The ring is reduced by X+']},
+  {q:'What happens to Y- in the fast step of the general mechanism?', c:'It abstracts a proton from the arenium ion, forming YH', w:['It bonds permanently to the ring carbon','It is oxidized to Y2','It becomes part of the aromatic ring']}
+];
+
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
+
+function buildQuiz(){
+  const list = document.getElementById('quiz-list');
+  list.innerHTML = '';
+  quizBank.forEach((item, qi) => {
+    const options = shuffle([{text:item.c, correct:true}, ...item.w.map(t=>({text:t, correct:false}))]);
+    const wrap = document.createElement('div');
+    wrap.className = 'q-item';
+    wrap.dataset.index = qi;
+    let optsHTML = '';
+    options.forEach((opt, oi) => {
+      optsHTML += `<label class="q-opt" data-correct="${opt.correct}">
+          <input type="radio" name="q${qi}" value="${oi}"> <span>${opt.text}</span>
+        </label>`;
+    });
+    wrap.innerHTML = `<div class="q-num">QUESTION ${qi+1} OF ${quizBank.length}</div>
+      <div class="q-text">${item.q}</div>
+      <div class="q-options">${optsHTML}</div>`;
+    list.appendChild(wrap);
+  });
+  updateScorePill();
+}
+
+function updateScorePill(){
+  const total = quizBank.length;
+  const answered = document.querySelectorAll('#quiz-list input[type=radio]:checked').length;
+  document.getElementById('quiz-score').textContent = answered + ' / ' + total + ' answered';
+}
+
+document.getElementById('quiz-list').addEventListener('change', updateScorePill);
+
+document.getElementById('quiz-check').addEventListener('click', () => {
+  let correctCount = 0;
+  document.querySelectorAll('.q-item').forEach(item => {
+    item.classList.add('locked');
+    const checked = item.querySelector('input[type=radio]:checked');
+    item.querySelectorAll('.q-opt').forEach(opt => {
+      if(opt.dataset.correct === 'true') opt.classList.add('correct');
+    });
+    if(checked){
+      const chosenLabel = checked.closest('.q-opt');
+      if(chosenLabel.dataset.correct === 'true'){
+        correctCount++;
+      } else {
+        chosenLabel.classList.add('wrong');
+      }
+    }
+  });
+  document.getElementById('quiz-score').textContent = correctCount + ' / ' + quizBank.length + ' correct';
+});
+
+document.getElementById('quiz-reshuffle').addEventListener('click', buildQuiz);
+
+buildQuiz();
+</script>
+</body>
+</html>
