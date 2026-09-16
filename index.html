@@ -443,8 +443,9 @@
   <section class="panel" id="flashcards">
     <div class="section-head">
       <h2>Flash cards</h2>
-      <p>Click a card to flip it. Everything above is fair game.</p>
+      <p>Click a card to flip it. Choose a difficulty level, then work through the set — Level 1 is direct recall, Level 3 demands full mechanistic reasoning.</p>
     </div>
+    <div class="pill-row" id="fc-level-pills"></div>
     <div class="fc-toolbar">
       <span class="count" id="fc-count"></span>
       <button id="fc-shuffle">Shuffle cards</button>
@@ -456,8 +457,9 @@
   <section class="panel" id="quiz">
     <div class="section-head">
       <h2>Quiz bank</h2>
-      <p>Answer choices are reshuffled every time — the correct option never sits in the same place twice.</p>
+      <p>Pick a difficulty level, then answer. Choices are reshuffled every time — the correct option never sits in the same place twice.</p>
     </div>
+    <div class="pill-row" id="quiz-level-pills"></div>
     <div class="quiz-toolbar">
       <span class="score-pill" id="quiz-score">0 / 0 answered</span>
       <div style="display:flex; gap:10px;">
@@ -717,34 +719,171 @@ mapTopics.forEach((topic, i) => {
 /* ============================================================
    FLASH CARDS
 ============================================================ */
-const flashcards = [
-  {q:'What is the electrophile in nitration?', a:'The nitronium ion, NO2+.'},
-  {q:'Which acts as the acid, and which as the base, in the HNO3/H2SO4 mixture?', a:'H2SO4 is the acid; HNO3 is the (much weaker) base.'},
-  {q:'Name two stable nitronium salts.', a:'Nitronium perchlorate (NO2+ClO4-) and nitronium fluoborate (NO2+BF4-).'},
-  {q:'Who showed nitronium salts nitrate arenes at room temperature, and where?', a:'George Olah, at Case Western Reserve University, using nitromethane or acetic acid as solvent.'},
-  {q:'What is the intermediate formed after the electrophile bonds to the ring called?', a:'The arenium ion — also called the benzenonium or carbonium ion.'},
-  {q:'How many resonance structures represent the arenium ion?', a:'Three (I, II, III), commonly summarized as one hybrid, structure IV.'},
-  {q:'Where is the positive charge concentrated in the arenium ion?', a:'On the carbons ortho and para to the new substituent.'},
-  {q:'Why does the ring lose H+ instead of adding a nucleophile, unlike an alkene\'s carbocation?', a:'Losing H+ restores the ring\'s aromatic stabilization; addition would destroy it.'},
-  {q:'Which step of the mechanism is rate-determining?', a:'Formation of the arenium ion (step 2) — it is slow. Proton loss is fast.'},
-  {q:'What is the electrophile in sulfonation?', a:'Sulfur trioxide, SO3 (sometimes HSO3+).'},
-  {q:'Why can SO3 act as an electrophile without a formal charge?', a:'It is electron-deficient, so it behaves as a Lewis acid.'},
-  {q:'What conditions favor forward sulfonation?', a:'Concentrated or fuming sulfuric acid (excess SO3) and low water concentration.'},
-  {q:'What conditions favor desulfonation?', a:'Dilute acid with superheated steam, at 100–175 °C.'},
-  {q:'What principle says sulfonation and desulfonation share one mechanism in reverse?', a:'The principle of microscopic reversibility.'},
-  {q:'What is the electrophile in Friedel–Crafts alkylation?', a:'A carbocation, R+ (or a complex that transfers R+ directly).'},
-  {q:'How is R+ generated from RCl?', a:'RCl + AlCl3 ⇌ R+ + AlCl4-, a Lewis acid-base equilibrium.'},
-  {q:'In the alternative alkylation pathway, how does the alkyl group reach the ring?', a:'It transfers directly from the polar AlCl3–alkyl halide complex, without its bonding electrons.'},
-  {q:'What is the electrophile in Friedel–Crafts acylation?', a:'The acylium ion, RCO+.'},
-  {q:'What stabilizes the acylium ion?', a:'Resonance — the positive charge is shared between the carbon and the oxygen.'},
-  {q:'What product forms from Friedel–Crafts acylation of benzene?', a:'An aryl ketone.'},
-  {q:'Why does Friedel–Crafts acylation stop at one substitution?', a:'The aryl ketone product deactivates the ring toward further acylation.'},
-  {q:'What complex forms when Cl2 reacts with FeCl3?', a:'A polarized complex — chlorine bonded to a chlorine that is itself interacting with FeCl3.'},
-  {q:'Is a free Cl+ ion actually involved in aromatic chlorination?', a:'No — chlorine transfers to the ring without its bonding electrons.'},
-  {q:'What is lost from the arenium ion in the final step of halogenation, and by what?', a:'A proton, abstracted by FeCl4-, which regenerates the FeCl3 catalyst.'},
-  {q:'Can very reactive aromatics react with halogens without a catalyst?', a:'Yes — when the ring\'s electrons are especially available.'},
-  {q:'What are the two universal steps of any electrophilic aromatic substitution?', a:'(1) Electrophile attacks the ring, forming an arenium ion (slow). (2) A base removes a proton, restoring aromaticity (fast).'}
+const flashcardsEasy = [
+  {q:"What is the electrophile in nitration?", a:"The nitronium ion, NO2+."},
+  {q:"What two acids are mixed to make the \"mixed acid\" used for nitration?", a:"Nitric acid and sulfuric acid."},
+  {q:"In the HNO3/H2SO4 mixture, which acid is the stronger acid?", a:"Sulfuric acid, H2SO4."},
+  {q:"Besides NO2+, what other ion forms when HNO3 reacts with H2SO4?", a:"The hydronium ion, H3O+ (along with HSO4-)."},
+  {q:"Name a stable salt that contains the nitronium ion.", a:"Nitronium perchlorate, NO2+ClO4-."},
+  {q:"Which chemist showed that nitronium salts nitrate aromatics at room temperature?", a:"George Olah."},
+  {q:"What part of the benzene ring does the nitronium ion attack?", a:"The pi (π) electron cloud of the ring."},
+  {q:"What is the intermediate formed when NO2+ bonds to the ring called?", a:"The arenium ion (also called the carbonium or benzenonium ion)."},
+  {q:"How many resonance structures are normally drawn for the arenium ion?", a:"Three."},
+  {q:"Is the ring carbon that bonds to the electrophile sp3 or sp2 in the arenium ion?", a:"sp3."},
+  {q:"What label does the text give to the single hybrid drawing of the arenium ion?", a:"Structure IV."},
+  {q:"Where is positive charge concentrated in the arenium ion, relative to the new substituent?", a:"On the carbons ortho and para to it."},
+  {q:"Is the arenium ion more or less stable than an ion with a fully localized positive charge?", a:"More stable."},
+  {q:"What kind of bond forms between the electrophile and the ring carbon?", a:"A covalent bond."},
+  {q:"Does benzene generally undergo addition or substitution with electrophiles?", a:"Substitution."},
+  {q:"What is lost from the arenium ion to give the final aromatic product?", a:"A hydrogen ion (proton)."},
+  {q:"What species abstracts the proton from the arenium ion during nitration?", a:"The bisulfate ion, HSO4-."},
+  {q:"Is proton loss from the arenium ion a fast or a slow step?", a:"Fast."},
+  {q:"What property of benzene is preserved by substitution instead of addition?", a:"Its aromatic (resonance) stabilization."},
+  {q:"What byproduct forms when HSO4- removes a proton from the arenium ion?", a:"H2SO4."},
+  {q:"How many essential steps make up every electrophilic aromatic substitution?", a:"Two."},
+  {q:"What happens in the first step of the general EAS mechanism?", a:"An electrophile attacks the ring, forming a carbonium (arenium) ion."},
+  {q:"What happens in the second step of the general EAS mechanism?", a:"A base abstracts a hydrogen ion from the arenium ion."},
+  {q:"In the generic reagent written as X+-Y-, which part becomes the electrophile?", a:"X+."},
+  {q:"Which step of every EAS mechanism is labeled \"slow\"?", a:"Formation of the arenium ion."},
+  {q:"Which step of every EAS mechanism is labeled \"fast\"?", a:"Loss of the proton."},
+  {q:"What is the electrophile in sulfonation?", a:"Sulfur trioxide, SO3."},
+  {q:"Does SO3 carry a formal positive charge?", a:"No."},
+  {q:"What type of acid is SO3 considered, despite having no formal charge?", a:"A Lewis acid (it is electron-deficient)."},
+  {q:"What kind of sulfuric acid is commonly used to sulfonate aromatic rings?", a:"Concentrated or fuming sulfuric acid."},
+  {q:"What is the name of the product formed when benzene is sulfonated?", a:"Benzenesulfonic acid."},
+  {q:"Is benzenesulfonic acid a strong or a weak acid?", a:"A strong acid; it is highly dissociated."},
+  {q:"Besides SO3, what other species can sometimes act as the electrophile in sulfonation?", a:"HSO3+."},
+  {q:"Desulfonation is the exact reverse of which reaction?", a:"Sulfonation."},
+  {q:"Over what temperature range is an aromatic sulfonic acid heated for desulfonation?", a:"100–175 °C."},
+  {q:"What is passed through the reaction mixture to help drive desulfonation?", a:"Superheated steam."},
+  {q:"Is dilute or concentrated acid used to desulfonate?", a:"Dilute acid."},
+  {q:"What is the electrophile that attacks the ring during desulfonation?", a:"The proton, H+."},
+  {q:"What principle guarantees that desulfonation runs by the exact reverse mechanism of sulfonation?", a:"The principle of microscopic reversibility."},
+  {q:"Between benzene and benzenesulfonic acid, which is described as volatile?", a:"Benzene (the hydrocarbon)."},
+  {q:"What is the electrophile in Friedel–Crafts alkylation?", a:"A carbocation, R+."},
+  {q:"What Lewis acid is commonly used as the catalyst in Friedel–Crafts alkylation?", a:"Aluminum chloride, AlCl3."},
+  {q:"What ion forms alongside R+ when RCl reacts with AlCl3?", a:"AlCl4-."},
+  {q:"What gas is released as a byproduct in Friedel–Crafts alkylation?", a:"HCl."},
+  {q:"Is AlCl3 consumed or regenerated by the end of the alkylation cycle?", a:"Regenerated."},
+  {q:"In what sense — Brønsted or Lewis — is the RCl + AlCl3 equilibrium described?", a:"The Lewis acid-base sense."},
+  {q:"What kind of halide is commonly used as the alkylating agent?", a:"An alkyl chloride, RCl."},
+  {q:"What is the electrophile in Friedel–Crafts acylation?", a:"The acylium ion, RCO+."},
+  {q:"What kind of reagents react with benzene in Friedel–Crafts acylation?", a:"Acyl chlorides or anhydrides."},
+  {q:"What class of product results from Friedel–Crafts acylation of benzene?", a:"Aromatic ketones (aryl ketones)."},
+  {q:"What catalyst is used in Friedel–Crafts acylation?", a:"Aluminum chloride, AlCl3."},
+  {q:"What bond is cleaved to form the acylium ion?", a:"The C–Cl bond."},
+  {q:"Where is the positive charge mainly located in the acylium ion?", a:"On the carbon, resonance-stabilized with the oxygen."},
+  {q:"Does Friedel–Crafts acylation give mono- or poly-substituted products?", a:"Monoacylated (mono-substituted) products."},
+  {q:"What is the electrophile in aromatic chlorination?", a:"Positive chlorine, delivered as a complex with FeCl3."},
+  {q:"What catalyst is used for benzene halogenation?", a:"Ferric chloride, FeCl3."},
+  {q:"What ion is lost as the leaving group in the final step of halogenation?", a:"FeCl4-."},
+  {q:"What acid byproduct forms during aromatic chlorination?", a:"HCl."},
+  {q:"What forms when Cl2 first reacts with FeCl3, before attacking the ring?", a:"A polarized complex between Cl2 and FeCl3."},
+  {q:"What is regenerated at the end of the halogenation catalytic cycle?", a:"FeCl3."},
 ];
+
+const flashcardsMedium = [
+  {q:"Why is sulfuric acid said to ionize nitric acid as HO-...+NO2 rather than the usual H+...+ONO2?", a:"Because sulfuric acid is so strong that it protonates and dehydrates nitric acid, effectively releasing the nitronium ion directly rather than simply protonating it."},
+  {q:"Why does nitric acid act as a base in the H2SO4/HNO3 mixture, even though it is an acid on its own?", a:"Because sulfuric acid is a far stronger acid, so relative to it, nitric acid behaves as the weaker, base-like species."},
+  {q:"What advantage do stable nitronium salts like NO2+BF4- offer over the ordinary mixed-acid method?", a:"They nitrate aromatic compounds smoothly and in high yield at room temperature, without needing the mixed-acid system."},
+  {q:"In what solvents did Olah dissolve nitronium salts to nitrate aromatics?", a:"Nitromethane or acetic acid."},
+  {q:"Why does the nitronium ion specifically seek out the benzene ring?", a:"Because it needs electrons, and the ring's π cloud makes them particularly available."},
+  {q:"What overall type of reaction is step (1) of nitration, generation of NO2+?", a:"An acid-base equilibrium."},
+  {q:"Why are structures I, II, and III considered resonance structures of one ion rather than three separate ions?", a:"They differ only in the position of double bonds and formal charge, not in atomic connectivity — they describe one real, delocalized ion."},
+  {q:"Why is the arenium ion more stable than it would be if its charge were localized on a single carbon?", a:"Because resonance disperses the positive charge over several ring carbons, lowering the ion's overall energy."},
+  {q:"What does the dashed circle in structure IV represent?", a:"The fractional bonding caused by the delocalized π electrons spread over the ring."},
+  {q:"Why does resonance stabilization likely determine whether the arenium ion forms at all?", a:"Because benzene itself is so stable that only a sufficiently stabilized intermediate could compete with it and actually form."},
+  {q:"In the arenium ion, do the ortho/para carbons or the ipso carbon carry more positive character?", a:"The ortho and para carbons carry more positive character than the ipso (substituent-bearing) carbon."},
+  {q:"How does formation of the arenium ion resemble addition to alkenes?", a:"In both, an electrophile drawn in by π electrons attaches to the molecule, forming a carbocation intermediate."},
+  {q:"Why would addition of a nucleophile to the arenium ion be unfavorable compared with losing a proton?", a:"Addition would destroy the ring's aromatic stabilization, while proton loss restores it."},
+  {q:"What does the substitution-vs-addition contrast reveal about what drives aromatic reactivity?", a:"That aromatic stabilization energy, not just carbocation stability, governs which pathway is favored."},
+  {q:"Given benzene's stability, why does the arenium ion form at all despite being difficult to generate?", a:"Because the arenium ion is itself resonance-stabilized enough to make its formation feasible, even against benzene's aromaticity."},
+  {q:"Why is loss of H+ described as \"typical\" behavior for a carbonium ion in general?", a:"Because eliminating H+ is a general reaction available to carbocations, and it happens to be the preferred one here."},
+  {q:"What would happen to product stability if the ring kept both the electrophile and a nucleophile instead of losing H+?", a:"It would lose the resonance/aromatic stabilization benzene rings have, making that addition product less stable than the substitution product."},
+  {q:"Why is arenium-ion formation, not proton loss, the \"more difficult\" step overall?", a:"Forming the ion disrupts benzene's aromatic system, while proton loss simply restores that stable, delocalized system."},
+  {q:"Why do essentially all electrophilic aromatic substitutions share the same two-step mechanism, regardless of reagent?", a:"Because in every case an electrophile attacks the π system to form a resonance-stabilized arenium ion, then a base removes a proton to restore aromaticity — only how the electrophile is made changes."},
+  {q:"In the generic YZ mechanism, what forms when Y- removes a proton from the arenium ion?", a:"YH forms, and the aromatic ring (now bearing X instead of H) is restored."},
+  {q:"Why does the identity of the base \"Y\" (HSO4-, AlCl4-, FeCl4-, etc.) differ between reactions even though the overall mechanism is identical?", a:"Because each electrophile is generated by a different acid-base or Lewis acid-base process, producing a different associated leaving group/base."},
+  {q:"What makes electrophilic addition to alkenes and electrophilic aromatic substitution similar in their first step, but different overall?", a:"Both begin with electrophile attack forming a carbocation, but the carbocation's fate differs — alkenes undergo addition, arenium ions undergo substitution."},
+  {q:"Why is the generic two-step mechanism useful for predicting new EAS reactions?", a:"Because any new electrophile YZ can be expected to follow the same slow-attack/fast-deprotonation pattern."},
+  {q:"Why is SO3 considered an acid even though it carries no formal positive charge?", a:"Because it is electron-deficient, making it a Lewis acid able to accept electron density from the ring."},
+  {q:"How is SO3 generated in the sulfonation mechanism?", a:"Through an acid-base equilibrium between molecules of sulfuric acid itself."},
+  {q:"Why is fuming sulfuric acid (excess SO3) commonly used for sulfonation?", a:"High concentration of the electrophile SO3 and low water concentration shift the equilibrium toward the sulfonic acid product."},
+  {q:"Why might HSO3+ act as the electrophile in some sulfonations instead of SO3?", a:"At certain acidities, molecules able to readily transfer SO3 or HSO3+ to the ring may be the actual electrophile."},
+  {q:"Why is benzenesulfonic acid described as \"highly dissociated\"?", a:"Because it is a strong acid, so it ionizes essentially completely in solution."},
+  {q:"What does step (1) of sulfonation (generating SO3) share mechanistically with step (1) of nitration (generating NO2+)?", a:"Both are acid-base equilibria that generate the active electrophile before it ever touches the ring."},
+  {q:"Why does high water concentration favor desulfonation instead of sulfonation?", a:"Water is a product of sulfonation, so raising its concentration shifts the equilibrium back toward benzene and sulfuric acid."},
+  {q:"Why does removing benzene by steam distillation help drive desulfonation forward?", a:"Continuously removing a product (volatile benzene) pulls the equilibrium further toward the hydrocarbon side."},
+  {q:"What does microscopic reversibility imply about the transition states of sulfonation and desulfonation?", a:"The reverse reaction must pass through the exact same intermediates and transition states as the forward reaction, in reverse order."},
+  {q:"Why is desulfonation also called \"protodesulfonation\"?", a:"Because the electrophile in this substitution is specifically a proton, H+, replacing the sulfonic acid group."},
+  {q:"How do the water-concentration conditions for sulfonation and desulfonation contrast?", a:"Sulfonation favors low water (excess SO3); desulfonation favors high water (dilute acid, steam)."},
+  {q:"Why can chemists steer the sulfonation/desulfonation reaction in either direction just by changing conditions?", a:"Because it is a true equilibrium, so standard equilibrium principles (concentration, product removal) can shift it either way."},
+  {q:"Why is the RCl + AlCl3 equilibrium in alkylation called a Lewis, not Brønsted, acid-base reaction?", a:"AlCl3 accepts an electron pair from chloride rather than transferring a proton, generating R+ and AlCl4-."},
+  {q:"Under what circumstance does Friedel–Crafts alkylation proceed without a genuinely free carbocation?", a:"In certain cases where the alkyl group transfers directly from the polar RCl–AlCl3 complex to the ring."},
+  {q:"What are the two possible identities of the electrophile in Friedel–Crafts alkylation?", a:"A free carbocation, R+, or a polar complex that can readily transfer R+ to the ring."},
+  {q:"Why is this duality of mechanism described as common in electrophilic aromatic substitution generally?", a:"Because several EAS reactions show the same pattern — the electrophile may be a free cation or delivered from a polarized complex."},
+  {q:"What two things are ultimately regenerated or released at the end of the alkylation catalytic cycle?", a:"AlCl3 is regenerated, and HCl is released as a byproduct."},
+  {q:"Why does the acylium ion form specifically via cleavage of the C–Cl bond in the AlCl3–acyl chloride complex?", a:"AlCl3 coordinates to the chlorine, polarizing and eventually breaking the C–Cl bond so the acyl group departs as a resonance-stabilized cation."},
+  {q:"How is the acylium ion's positive charge stabilized by resonance?", a:"The charge is shared between the carbonyl carbon and the oxygen, via delocalization of the C=O system."},
+  {q:"Why does Friedel–Crafts acylation cleanly stop at monoacylation?", a:"The aryl ketone product is electron-withdrawing and deactivates the ring, making further acylation on the same ring far less favorable."},
+  {q:"What are the three general steps of Friedel–Crafts acylation, in order?", a:"(1) Formation of the acylium electrophile, (2) electrophilic attack forming a carbonium ion, (3) loss of a proton to give the ketone."},
+  {q:"Why is the leaving complex written as an anion (Cl–AlCl3-) in acylation?", a:"AlCl3, acting as a Lewis acid, accepts chloride's electron pair, leaving AlCl3 bonded to Cl with an overall negative charge."},
+  {q:"Why is a free Cl+ ion considered unlikely to exist during aromatic chlorination?", a:"Chlorine transfers to the ring from a polarized Cl2–FeCl3 complex without ever fully forming an independent Cl+ cation."},
+  {q:"How does halogen addition to alkenes differ from aromatic halogenation, despite both involving \"positive halogen\"?", a:"Alkenes are reactive enough that X2 supplies positive halogen directly, with loss of X-; benzene needs FeCl3's assistance."},
+  {q:"Why can some very reactive aromatics react with halogens without any Lewis acid catalyst?", a:"Their ring electrons are more available, making the ring nucleophilic enough to attack X2 without help."},
+  {q:"What role does FeCl3 play mechanistically in aromatic halogenation?", a:"It complexes with Cl2, polarizing the Cl–Cl bond for delivery to the ring, and later helps remove the proton as FeCl4-."},
+  {q:"Why is FeCl4- described as a \"better\" leaving group in the final step of halogenation?", a:"It is a stable, weakly coordinating anion that readily departs after abstracting the proton, regenerating FeCl3."},
+];
+
+const flashcardsHard = [
+  {q:"The nitration equilibrium is HNO3 + 2H2SO4 ⇌ H3O+ + 2HSO4- + NO2+. Why are two equivalents of H2SO4 required?", a:"One H2SO4 protonates the OH of HNO3, which then loses water to release NO2+; a second H2SO4 is needed to protonate that departing water molecule, forming H3O+."},
+  {q:"Compare mixed-acid nitration to Olah's nitronium-salt method in terms of what limits the rate.", a:"In mixed-acid nitration, NO2+ generation from HNO3/H2SO4 precedes ring attack, so rate can depend on electrophile generation; with pre-formed nitronium salts, the rate-determining step is purely ring attack."},
+  {q:"Why is the H2SO4/HNO3 reaction described as an \"acid-base equilibrium\" rather than irreversible?", a:"It is a reversible proton-transfer/dehydration process governed by relative acid strengths, denoted with a double-headed equilibrium arrow."},
+  {q:"Predict the effect of adding a large excess of water to a mixed-acid nitration mixture, using Le Chatelier's principle.", a:"Excess water shifts the equilibrium back toward HNO3 and H2SO4, lowering NO2+ concentration and slowing nitration."},
+  {q:"Why does the nitronium ion, despite being a strong electrophile, still need an electron-rich substrate like benzene?", a:"NO2+ has no electrons to offer for bonding; it must accept an electron pair, so it depends on a substrate whose π electrons are sufficiently available."},
+  {q:"Why is the arenium ion best described as one species (IV), not a mixture of I, II, and III?", a:"I–III share identical atomic positions and differ only in electron/charge placement on paper; the real molecule has its charge delocalized across all three positions simultaneously."},
+  {q:"Using resonance theory, why do ortho and para carbons bear more positive character than meta carbons in the arenium ion?", a:"Only structures placing the + charge at ortho- or para-type carbons are valid resonance forms; no analogous structure places positive charge on a meta carbon."},
+  {q:"Why doesn't resonance in the arenium ion fully restore benzene's original aromatic stabilization?", a:"One ring carbon is sp3 and out of conjugation, breaking the continuous six-π-electron system; delocalization over the other five carbons is only partial stabilization."},
+  {q:"Relate the arenium ion's difficult formation to the overall stability comparison with benzene.", a:"Benzene is already highly stabilized by aromaticity, so forming a less-stabilized sp3-containing intermediate requires overcoming a large barrier; proton loss is downhill back toward aromaticity, so it's fast."},
+  {q:"If the arenium ion's charge were fully localized (no resonance), how would EAS rate be affected, and why?", a:"The rate would drop sharply, since the unstabilized intermediate would be far higher in energy, raising the activation barrier of the already-difficult formation step."},
+  {q:"Contrast the fate of an alkene's carbocation with the arenium ion, and explain the thermodynamic reason.", a:"The alkene carbocation is quenched by nucleophile addition since nothing more stable awaits it; the arenium ion loses a proton instead, because that regenerates the far more stable aromatic ring."},
+  {q:"Why can EAS be considered a special case of the broader pattern seen in electrophilic addition?", a:"Both begin identically — an electrophile drawn by π electrons bonds covalently, forming a carbocation — diverging only afterward based on which pathway is thermodynamically favored."},
+  {q:"Predict what happens mechanistically if the base Y- in the general EAS mechanism were a very weak base.", a:"Proton abstraction would become slower, possibly becoming rate-limiting instead of electrophile attack, or the arenium ion could be trapped by other pathways."},
+  {q:"Evaluate the claim that EAS proceeds by \"a single mechanism\" using the Friedel–Crafts alkylation duality (free R+ vs. complex transfer) as a test case.", a:"The claim holds at the level of the two overall stages, but the duality shows the electrophile itself may arrive as a free cation or bound in a complex — so the claim describes the general kinetic pattern, not the literal identity of every attacking species."},
+  {q:"Why might sulfonation (SO3) and nitration (NO2+) be considered mechanistically parallel despite SO3 having no formal charge?", a:"Both act as electron-pair acceptors (Lewis acids) toward the ring's π system regardless of formal charge, forming the same kind of resonance-stabilized arenium intermediate."},
+  {q:"Using microscopic reversibility, why must H+ attack the same carbon in desulfonation that originally bore SO3H?", a:"The reverse reaction must traverse the identical intermediates and transition states as the forward reaction, so protonation must occur at that same carbon."},
+  {q:"In desulfonation's two equilibria — (1) protonation to an arenium intermediate, (2) loss of SO3 — which step is rate-determining, and why?", a:"Step (1), protonation to form the resonance-stabilized arenium ion, is rate-determining (slow), by analogy with every other EAS mechanism; loss of SO3, restoring aromaticity, is fast."},
+  {q:"Why is manipulating both steam AND acid concentration more effective for desulfonation than either alone?", a:"Steam supplies excess water (shifting the equilibrium) and physically removes volatile benzene by distillation, so the two effects act on different sides of the same equilibrium simultaneously."},
+  {q:"Would a benzenesulfonic acid bearing an electron-donating group desulfonate faster or slower than the parent compound, and why?", a:"Faster — an electron-donating group makes the ring better able to stabilize the developing positive charge in the rate-determining protonation step, lowering its activation energy."},
+  {q:"Why can sulfonation act as a temporary \"blocking group\" strategy in synthesis?", a:"Because it can be cleanly reversed by desulfonation under defined conditions, so SO3H can block a position during other reactions, then be removed to regenerate the hydrocarbon."},
+  {q:"Why doesn't Friedel–Crafts acylation suffer the carbocation rearrangement problems that can plague alkylation?", a:"The acylium ion's charge is resonance-stabilized between carbon and oxygen, so it need not rearrange to a more stable structure the way a simple alkyl carbocation might."},
+  {q:"Compare the role of AlCl3 in alkylation versus acylation in terms of the bond it helps cleave.", a:"In both, AlCl3 coordinates to chlorine as a Lewis acid; in alkylation it helps cleave the alkyl C–Cl bond to release R+, while in acylation it cleaves the acyl C–Cl bond to release RCO+."},
+  {q:"What mechanistic consequence follows from \"no free carbonium ion\" in certain alkylations?", a:"Since the alkyl group transfers directly from the polar complex without forming a free, planar carbocation, there is less opportunity for it to rearrange before bonding to the ring."},
+  {q:"Using ring deactivation, why is Friedel–Crafts acylation more synthetically reliable than alkylation for a single product?", a:"The ketone product deactivates the ring, self-limiting the reaction to monoacylation; alkylbenzene products are more activated than benzene, favoring over-alkylation."},
+  {q:"Using resonance stabilization of the acylium ion, predict which Friedel–Crafts reaction gives cleaner mono-substitution, and why.", a:"Acylation, because the resonance-stabilized acylium electrophile reacts without over-reaction, self-limited by the deactivating ketone product, unlike alkylation's activated ring."},
+  {q:"Compare the mechanistic role of FeCl3 in halogenation to AlCl3 in alkylation, in Lewis-acid terms.", a:"Both are Lewis acids that coordinate to a halide, polarizing or cleaving that bond to generate a potent electrophile, while forming a stabilized anion (FeCl4- or AlCl4-) as leaving group."},
+  {q:"Why can electron-rich aromatics react with X2 without a Lewis acid catalyst, while benzene cannot, in terms of the rate-determining step?", a:"Since ring attack is rate-determining, a sufficiently electron-rich ring can attack the halogen-halogen bond directly without needing FeCl3 to pre-polarize it; benzene's electrons are less available."},
+  {q:"What is the key mechanistic divergence between halogen addition to alkenes and aromatic halogenation, despite both involving \"positive halogen\"?", a:"Alkenes get positive halogen directly from X2 without catalytic help and undergo addition; benzene needs FeCl3 to generate the electrophile and undergoes substitution to preserve aromaticity."},
+  {q:"Across all six reactions discussed, what single feature do all rate-determining steps share, and why is it significant?", a:"Every rate-determining step is electrophilic attack on the ring forming a resonance-stabilized arenium ion, since this requires disrupting aromaticity — showing reactivity is governed by the same underlying barrier regardless of electrophile."},
+  {q:"Why is EAS described as \"like addition to alkenes\" in its first step but fundamentally different overall?", a:"Both begin with an electrophile bonding to form a carbocation, but the arenium ion has a highly stabilized aromatic state to return to via proton loss, making substitution the favored outcome for aromatics."},
+  {q:"Why do nitronium salts dissolved in nitromethane react \"smoothly,\" contrasted with the aqueous mixed-acid system?", a:"Nitromethane is inert and non-nucleophilic, so it doesn't compete with the ring for NO2+ or hydrolyze it back to nitric acid, unlike water in the mixed-acid system."},
+  {q:"Why is formation of the electrophile (NO2+, SO3, R+) not counted among the \"two essential steps\" of EAS?", a:"The two steps describe what happens to the substrate itself; generating the electrophile is a separate, often reversible process occurring in the reagent system beforehand."},
+  {q:"Why is a second electrophile attacking the arenium ion before proton loss not observed under normal EAS conditions?", a:"The arenium ion is a transient cation; a second, positively charged electrophile would be electrostatically repelled, and proton loss to rearomatize is kinetically much faster."},
+  {q:"Contrast why sulfonation's equilibrium is easily reversed while nitration is treated as essentially irreversible.", a:"Benzenesulfonic acid can revert to SO3 and benzene under the right conditions because the elimination pathway competes readily; nitrobenzene has no analogous facile reverse process."},
+  {q:"Predict the outcome if desulfonation were run in a sealed vessel at 150 °C with no steam distillation.", a:"Without removing volatile benzene, the system would simply approach its equilibrium position rather than being driven to near completion, since extensive conversion depends on continuous benzene removal."},
+  {q:"Why are acylium ions generally considered milder, more selective electrophiles than simple alkyl carbocations?", a:"Their positive charge is delocalized over carbon and oxygen via resonance, moderating their effective electrophilicity compared to an unstabilized carbocation."},
+  {q:"Why is FeCl4-, rather than plain Cl-, the base used in the deprotonation step of halogenation significant?", a:"FeCl4- forms directly from the catalytic cycle as a stable, weakly basic anion well suited to abstracting the proton and departing cleanly, regenerating FeCl3."},
+  {q:"Why do most of these six reactions require Lewis or Brønsted acid assistance to proceed?", a:"The acid either converts a poor electrophile into a genuine one (HNO3 to NO2+, RCl to R+) or polarizes a reagent enough to attack benzene's comparatively unreactive aromatic system."},
+  {q:"Why are the arenium ions formed across nitration, sulfonation, alkylation, acylation, and halogenation all structurally analogous?", a:"In each case one ring carbon becomes sp3 while the remaining electrons delocalize with positive charge ortho/para to the new group — a pattern independent of which substituent is attached."},
+  {q:"How would the equilibrium principles used for sulfonation/desulfonation apply, in principle, to reversing a Friedel–Crafts alkylation?", a:"Reversing alkylation would require shifting the R+ + AlCl4- ⇌ RCl + AlCl3 equilibrium and ring-attack equilibrium backward, though this reverse process is not emphasized the way desulfonation is."},
+];
+
+const fcLevels = [
+  {key:'easy', label:'Level 1 · Easy', sub:'60 cards', data:flashcardsEasy},
+  {key:'medium', label:'Level 2 · Medium', sub:'50 cards', data:flashcardsMedium},
+  {key:'hard', label:'Level 3 · Hard', sub:'40 cards', data:flashcardsHard}
+];
+let currentFcLevel = 'easy';
 
 function renderFlashcards(list){
   const grid = document.getElementById('fc-grid');
@@ -761,58 +900,211 @@ function renderFlashcards(list){
   });
   document.getElementById('fc-count').textContent = list.length + ' cards';
 }
-renderFlashcards(flashcards);
+
+function buildFcLevelPills(){
+  const wrap = document.getElementById('fc-level-pills');
+  wrap.innerHTML = '';
+  fcLevels.forEach(lvl => {
+    const b = document.createElement('button');
+    b.className = 'pill' + (lvl.key === currentFcLevel ? ' active' : '');
+    b.textContent = lvl.label + ' — ' + lvl.sub;
+    b.addEventListener('click', () => {
+      currentFcLevel = lvl.key;
+      buildFcLevelPills();
+      renderFlashcards(lvl.data);
+    });
+    wrap.appendChild(b);
+  });
+}
+buildFcLevelPills();
+renderFlashcards(fcLevels.find(l=>l.key===currentFcLevel).data);
+
 document.getElementById('fc-shuffle').addEventListener('click', () => {
-  const shuffled = [...flashcards].sort(() => Math.random()-0.5);
+  const current = fcLevels.find(l=>l.key===currentFcLevel).data;
+  const shuffled = [...current].sort(() => Math.random()-0.5);
   renderFlashcards(shuffled);
 });
 
 /* ============================================================
    QUIZ BANK
 ============================================================ */
-const quizBank = [
-  {q:'What is the electrophile that attacks the ring in nitration?', c:'Nitronium ion, NO2+', w:['Nitrate ion, NO3-','Nitrosonium ion, NO+','Protonated nitric acid, H2NO3+']},
-  {q:'In the HNO3 / H2SO4 mixture, which species acts as the acid?', c:'Sulfuric acid, H2SO4', w:['Nitric acid, HNO3','Water, H2O','Bisulfate ion, HSO4-']},
-  {q:'Which of these is a known, stable nitronium salt?', c:'Nitronium perchlorate, NO2+ClO4-', w:['Sodium nitrate, NaNO3','Ammonium nitrate, NH4NO3','Silver nitrite, AgNO2']},
-  {q:'Who demonstrated that nitronium salts nitrate aromatics smoothly at room temperature?', c:'George Olah', w:['Linus Pauling','Robert Woodward','Paul Friedel']},
-  {q:'What is the intermediate formed when the electrophile bonds to the ring called?', c:'Arenium ion (benzenonium / carbonium ion)', w:['Zwitterion','Ylide','Carbanion']},
-  {q:'How many resonance contributors are typically drawn for the arenium ion?', c:'Three', w:['Two','Four','Six']},
-  {q:'Where is the positive charge most concentrated in the arenium ion?', c:'The ortho and para positions', w:['The meta positions only','The ipso position only','Spread equally over all six carbons']},
-  {q:'Why does the arenium ion lose a proton rather than add a nucleophile, unlike an alkene\'s carbocation?', c:'Losing H+ restores the ring\'s aromatic stabilization', w:['The nucleophile is too large to bond','Protons are always better leaving groups than nucleophiles','Aromatic rings cannot form new sigma bonds']},
-  {q:'Which step of electrophilic aromatic substitution is rate-determining?', c:'Formation of the arenium ion', w:['Loss of the proton','Regeneration of the catalyst','Diffusion of reagents together']},
-  {q:'What is the electrophile in aromatic sulfonation?', c:'Sulfur trioxide, SO3', w:['Sulfate ion, SO4^2-','Sulfurous acid, H2SO3','Bisulfite ion, HSO3-']},
-  {q:'Why can SO3 act as an electrophile despite carrying no formal positive charge?', c:'It is electron-deficient and behaves as a Lewis acid', w:['It spontaneously ionizes into S6+ and O2-','It is always protonated in solution first','It carries a partial negative charge on sulfur']},
-  {q:'What conditions favor the forward sulfonation reaction?', c:'Excess concentrated or fuming sulfuric acid, low water', w:['Dilute acid and superheated steam','High water concentration','Low temperature and excess base']},
-  {q:'What conditions favor desulfonation?', c:'Dilute acid with superheated steam, 100–175 °C', w:['Fuming sulfuric acid at room temperature','Concentrated acid with no water present','Strictly anhydrous conditions']},
-  {q:'Desulfonation is the reverse of sulfonation by which principle?', c:'Microscopic reversibility', w:["Le Chatelier's principle alone",'Conservation of charge','Markovnikov\'s rule']},
-  {q:'What is the electrophile in Friedel–Crafts alkylation?', c:'A carbocation, R+', w:['An alkyl radical, R•','A carbanion, R-','An alkoxide ion, RO-']},
-  {q:'What reaction generates the alkylating electrophile from RCl?', c:'RCl + AlCl3 → R+ + AlCl4-', w:['RCl + H2O → ROH + HCl','RCl + NaOH → ROH + NaCl','RCl + Cl2 → RCl2 + Cl-']},
-  {q:'In the alternative Friedel–Crafts alkylation pathway, how does the alkyl group reach the ring?', c:'Transferred directly from a polar complex, without its bonding electrons', w:['Transferred as a free radical','Transferred together with a chloride ion','It first forms an alkoxide before attacking']},
-  {q:'What is the electrophile in Friedel–Crafts acylation?', c:'The acylium ion, RCO+', w:['The acyl radical, RCO•','The acid chloride itself, RCOCl','The carboxylate ion, RCOO-']},
-  {q:'What stabilizes the acylium ion?', c:'Resonance delocalization of the positive charge onto oxygen', w:['Hydrogen bonding with the solvent','Its large physical size','Coordination with a second AlCl3']},
-  {q:'What product results from Friedel–Crafts acylation of benzene?', c:'An aryl ketone', w:['An aryl ether','An aromatic amine','An aromatic alcohol']},
-  {q:'What complex forms when Cl2 reacts with FeCl3 in halogenation?', c:'A polarized complex, Cl-Cl+ interacting with FeCl3-', w:['A free Cl+ ion in solution','FeCl6^3- and Cl2','Cl2O and FeCl2']},
-  {q:'Is a free Cl+ cation actually involved in electrophilic aromatic chlorination?', c:'No, chlorine transfers without its bonding electrons', w:['Yes, it forms freely in solution','Yes, but only at high temperature','Yes, but only with excess FeCl3']},
-  {q:'What species is lost from the arenium ion in the final step of halogenation?', c:'A proton, abstracted by FeCl4-', w:['A chloride ion','A hydride ion','An electron pair, to iron']},
-  {q:'Which aromatic compounds can react with halogens without an added Lewis acid catalyst?', c:'Highly reactive aromatics whose ring electrons are especially available', w:['All aromatic compounds, without exception','Only deactivated aromatics','Only aromatics already bearing a NO2 group']},
-  {q:'What are the two general steps common to every electrophilic aromatic substitution?', c:'Electrophile attack forming an arenium ion, then loss of a proton', w:['Electrophile attack, then addition of a nucleophile','Deprotonation, then electrophile attack','Two sequential proton transfers']},
-  {q:'Which step in the general mechanism is fast?', c:'Loss of the proton by a base', w:['Formation of the arenium ion','Diffusion of the electrophile to the ring','Formation of the electrophile itself']},
-  {q:'Why doesn\'t benzene simply add the electrophile and nucleophile across a double bond, the way an alkene does?', c:'Addition would destroy the ring\'s aromatic stabilization', w:['Benzene has no pi electrons available','A nucleophile cannot approach a six-membered ring','Benzene reacts only with radicals']},
-  {q:'What is the role of sulfuric acid in generating the nitronium ion?', c:'It protonates nitric acid and helps expel water, releasing NO2+', w:['It reduces nitric acid to nitrous acid','It acts only as an inert solvent','It oxidizes benzene directly']},
-  {q:'How is the ring\'s aromaticity finally restored after nitration?', c:'HSO4- removes a proton from the sp3 ring carbon', w:['Oxygen gas is released from the ring','The ring gains an extra hydrogen atom','Ammonia is eliminated from the intermediate']},
-  {q:'Which best describes benzenesulfonic acid, the product of sulfonation?', c:'A strong acid that is highly dissociated', w:['A weak, mostly molecular acid','A neutral, non-ionizable compound','A strong base']},
-  {q:'What is regenerated at the end of the Friedel–Crafts alkylation cycle?', c:'AlCl3, along with HCl as a by-product', w:['AlCl4-, permanently consumed','Cl2 gas','A brand-new alkyl halide']},
-  {q:'Why does Friedel–Crafts acylation cleanly give a single substitution product?', c:'The ketone product deactivates the ring, preventing further acylation', w:['Acyl chlorides never react with AlCl3','Acylation does not require any catalyst','Acylium ions are unreactive toward benzene']},
-  {q:'In the general scheme for a reagent X+Y-, what happens in the slow step?', c:'X+ (the electrophile) bonds to the ring, forming an arenium ion', w:['Y- bonds to the ring first','Both X+ and Y- add to the ring simultaneously','The ring is reduced by X+']},
-  {q:'What happens to Y- in the fast step of the general mechanism?', c:'It abstracts a proton from the arenium ion, forming YH', w:['It bonds permanently to the ring carbon','It is oxidized to Y2','It becomes part of the aromatic ring']}
+const quizEasy = [
+  {q:"What is the electrophile in nitration?", c:"The nitronium ion, NO2+", w:["Nitrate ion, NO3-", "Nitrosonium ion, NO+", "Protonated nitric acid, H2NO3+"]},
+  {q:"What two acids are mixed to make the \"mixed acid\" used for nitration?", c:"Nitric acid and sulfuric acid", w:["Hydrochloric acid and nitric acid", "Acetic acid and nitric acid", "Phosphoric acid and nitric acid"]},
+  {q:"In the HNO3/H2SO4 mixture, which acid is the stronger acid?", c:"Sulfuric acid, H2SO4", w:["Nitric acid, HNO3", "Water, H2O", "Bisulfate ion, HSO4-"]},
+  {q:"Besides NO2+, what other ion forms when HNO3 reacts with H2SO4?", c:"The hydronium ion, H3O+ (along with HSO4-)", w:["Sulfate ion, SO4^2-", "Nitrite ion, NO2-", "Hydroxide ion, OH-"]},
+  {q:"Name a stable salt that contains the nitronium ion.", c:"Nitronium perchlorate, NO2+ClO4-", w:["Sodium nitrate, NaNO3", "Ammonium nitrate, NH4NO3", "Silver nitrite, AgNO2"]},
+  {q:"Which chemist showed that nitronium salts nitrate aromatics at room temperature?", c:"George Olah", w:["Linus Pauling", "Robert Woodward", "Paul Friedel"]},
+  {q:"What part of the benzene ring does the nitronium ion attack?", c:"The pi (π) electron cloud of the ring", w:["The sigma-bonded hydrogens", "The empty d-orbitals of carbon", "The core electrons of carbon"]},
+  {q:"What is the intermediate formed when NO2+ bonds to the ring called?", c:"The arenium ion (also called the carbonium or benzenonium ion)", w:["Zwitterion", "Ylide", "Carbanion"]},
+  {q:"How many resonance structures are normally drawn for the arenium ion?", c:"Three", w:["Two", "Four", "Six"]},
+  {q:"Is the ring carbon that bonds to the electrophile sp3 or sp2 in the arenium ion?", c:"sp3", w:["sp2", "sp", "p"]},
+  {q:"What label does the text give to the single hybrid drawing of the arenium ion?", c:"Structure IV", w:["Structure I", "Structure II", "Structure V"]},
+  {q:"Where is positive charge concentrated in the arenium ion, relative to the new substituent?", c:"On the carbons ortho and para to it", w:["The meta positions only", "The ipso position only", "Spread equally over all six carbons"]},
+  {q:"Is the arenium ion more or less stable than an ion with a fully localized positive charge?", c:"More stable", w:["Less stable", "Equally stable", "Unstable and non-existent"]},
+  {q:"What kind of bond forms between the electrophile and the ring carbon?", c:"A covalent bond", w:["An ionic bond", "A hydrogen bond", "A coordinate bond to oxygen only"]},
+  {q:"Does benzene generally undergo addition or substitution with electrophiles?", c:"Substitution", w:["Addition", "Elimination only, with no substitution", "Radical chain reaction"]},
+  {q:"What is lost from the arenium ion to give the final aromatic product?", c:"A hydrogen ion (proton)", w:["A chloride ion", "An electron pair", "A water molecule"]},
+  {q:"What species abstracts the proton from the arenium ion during nitration?", c:"The bisulfate ion, HSO4-", w:["The nitronium ion, NO2+", "Sulfate ion, SO4^2-", "Nitrate ion, NO3-"]},
+  {q:"Is proton loss from the arenium ion a fast or a slow step?", c:"Fast", w:["Slow", "Reversible only, with no rate", "Instantaneous but energy-releasing"]},
+  {q:"What property of benzene is preserved by substitution instead of addition?", c:"Its aromatic (resonance) stabilization", w:["Its boiling point", "Its molecular weight", "Its color"]},
+  {q:"What byproduct forms when HSO4- removes a proton from the arenium ion?", c:"H2SO4", w:["HNO3", "H2O only", "NO2+"]},
+  {q:"How many essential steps make up every electrophilic aromatic substitution?", c:"Two", w:["Three", "One", "Four"]},
+  {q:"What happens in the first step of the general EAS mechanism?", c:"An electrophile attacks the ring, forming a carbonium (arenium) ion", w:["An electrophile abstracts a proton first", "A nucleophile attacks the ring", "Two electrophiles attack simultaneously"]},
+  {q:"What happens in the second step of the general EAS mechanism?", c:"A base abstracts a hydrogen ion from the arenium ion", w:["An electrophile attacks the ring again", "The ring is reduced", "A nucleophile is released"]},
+  {q:"In the generic reagent written as X+-Y-, which part becomes the electrophile?", c:"X+", w:["Y-", "Z alone", "Both X+ and Y- together"]},
+  {q:"Which step of every EAS mechanism is labeled \"slow\"?", c:"Formation of the arenium ion", w:["Loss of the proton", "Diffusion of reagents", "Formation of the catalyst"]},
+  {q:"Which step of every EAS mechanism is labeled \"fast\"?", c:"Loss of the proton", w:["Formation of the arenium ion", "Catalyst regeneration", "Diffusion of the electrophile"]},
+  {q:"What is the electrophile in sulfonation?", c:"Sulfur trioxide, SO3", w:["Sulfate ion, SO4^2-", "Sulfurous acid, H2SO3", "Bisulfite ion, HSO3-"]},
+  {q:"Does SO3 carry a formal positive charge?", c:"No", w:["Yes", "Only in the gas phase", "Only when bonded to benzene"]},
+  {q:"What type of acid is SO3 considered, despite having no formal charge?", c:"A Lewis acid (it is electron-deficient)", w:["A Brønsted acid only", "A neutral, non-reactive molecule", "A strong base"]},
+  {q:"What kind of sulfuric acid is commonly used to sulfonate aromatic rings?", c:"Concentrated or fuming sulfuric acid", w:["Dilute sulfuric acid", "Nitric acid", "Acetic acid"]},
+  {q:"What is the name of the product formed when benzene is sulfonated?", c:"Benzenesulfonic acid", w:["Benzoic acid", "Phenol", "Benzaldehyde"]},
+  {q:"Is benzenesulfonic acid a strong or a weak acid?", c:"A strong acid; it is highly dissociated", w:["A weak acid, mostly undissociated", "A neutral compound", "A strong base"]},
+  {q:"Besides SO3, what other species can sometimes act as the electrophile in sulfonation?", c:"HSO3+", w:["NO2+", "AlCl4-", "FeCl4-"]},
+  {q:"Desulfonation is the exact reverse of which reaction?", c:"Sulfonation", w:["Sulfonation", "Nitration", "Halogenation"]},
+  {q:"Over what temperature range is an aromatic sulfonic acid heated for desulfonation?", c:"100–175 °C", w:["0–25 °C", "300–400 °C", "500–600 °C"]},
+  {q:"What is passed through the reaction mixture to help drive desulfonation?", c:"Superheated steam", w:["Dry nitrogen gas", "Liquid ammonia", "Chlorine gas"]},
+  {q:"Is dilute or concentrated acid used to desulfonate?", c:"Dilute acid", w:["Concentrated acid", "Fuming acid", "Anhydrous acid"]},
+  {q:"What is the electrophile that attacks the ring during desulfonation?", c:"The proton, H+", w:["SO3", "AlCl4-", "FeCl4-"]},
+  {q:"What principle guarantees that desulfonation runs by the exact reverse mechanism of sulfonation?", c:"The principle of microscopic reversibility", w:["Le Chatelier's principle", "Conservation of mass alone", "Markovnikov's rule"]},
+  {q:"Between benzene and benzenesulfonic acid, which is described as volatile?", c:"Benzene (the hydrocarbon)", w:["Benzenesulfonic acid", "Neither is volatile", "Both are equally volatile"]},
+  {q:"What is the electrophile in Friedel–Crafts alkylation?", c:"A carbocation, R+", w:["A carbanion, R-", "An alkyl radical, R•", "An alkoxide ion, RO-"]},
+  {q:"What Lewis acid is commonly used as the catalyst in Friedel–Crafts alkylation?", c:"Aluminum chloride, AlCl3", w:["FeCl3", "H2SO4", "HCl"]},
+  {q:"What ion forms alongside R+ when RCl reacts with AlCl3?", c:"AlCl4-", w:["FeCl4-", "Cl-", "H3O+"]},
+  {q:"What gas is released as a byproduct in Friedel–Crafts alkylation?", c:"HCl", w:["Cl2", "O2", "H2"]},
+  {q:"Is AlCl3 consumed or regenerated by the end of the alkylation cycle?", c:"Regenerated", w:["Consumed", "Converted permanently to AlCl4-", "Destroyed by the ring"]},
+  {q:"In what sense — Brønsted or Lewis — is the RCl + AlCl3 equilibrium described?", c:"The Lewis acid-base sense", w:["The Brønsted acid-base sense", "A radical mechanism", "A purely ionic dissociation"]},
+  {q:"What kind of halide is commonly used as the alkylating agent?", c:"An alkyl chloride, RCl", w:["An alkyl bromide always", "Only aryl chlorides", "Only vinyl chlorides"]},
+  {q:"What is the electrophile in Friedel–Crafts acylation?", c:"The acylium ion, RCO+", w:["The acyl radical, RCO•", "The acid chloride itself, RCOCl", "The carboxylate ion, RCOO-"]},
+  {q:"What kind of reagents react with benzene in Friedel–Crafts acylation?", c:"Acyl chlorides or anhydrides", w:["Alcohols and ethers only", "Aldehydes only", "Carboxylic acids only"]},
+  {q:"What class of product results from Friedel–Crafts acylation of benzene?", c:"Aromatic ketones (aryl ketones)", w:["Aromatic amines", "Aromatic ethers", "Aromatic alcohols"]},
+  {q:"What catalyst is used in Friedel–Crafts acylation?", c:"Aluminum chloride, AlCl3", w:["FeCl3", "HCl gas alone", "NaOH"]},
+  {q:"What bond is cleaved to form the acylium ion?", c:"The C–Cl bond", w:["The O–H bond", "The C=O bond only, with no cleavage", "The C–C bond of the ring"]},
+  {q:"Where is the positive charge mainly located in the acylium ion?", c:"On the carbon, resonance-stabilized with the oxygen", w:["Only on the oxygen", "Only on the chlorine", "Equally on all ring carbons"]},
+  {q:"Does Friedel–Crafts acylation give mono- or poly-substituted products?", c:"Monoacylated (mono-substituted) products", w:["Polysubstituted products", "Only ortho products", "Only meta products"]},
+  {q:"What is the electrophile in aromatic chlorination?", c:"Positive chlorine, delivered as a complex with FeCl3", w:["AlCl3", "H2SO4", "HNO3"]},
+  {q:"What catalyst is used for benzene halogenation?", c:"Ferric chloride, FeCl3", w:["AlCl3", "H2SO4", "NaCl"]},
+  {q:"What ion is lost as the leaving group in the final step of halogenation?", c:"FeCl4-", w:["AlCl4-", "Cl-", "H3O+"]},
+  {q:"What acid byproduct forms during aromatic chlorination?", c:"HCl", w:["Ammonia, NH3", "Sulfuric acid, H2SO4", "Water, H2O"]},
+  {q:"What forms when Cl2 first reacts with FeCl3, before attacking the ring?", c:"A polarized complex between Cl2 and FeCl3", w:["A polarized Cl2–AlCl3 complex", "Free Cl- and Cl+ ions in solution", "Cl2O"]},
+  {q:"What is regenerated at the end of the halogenation catalytic cycle?", c:"FeCl3", w:["AlCl3", "HCl permanently", "Nothing is regenerated"]},
+];
+
+const quizMedium = [
+  {q:"Why is sulfuric acid said to ionize nitric acid as HO-...+NO2 rather than the usual H+...+ONO2?", c:"Because sulfuric acid is so strong that it protonates and dehydrates nitric acid, effectively releasing the nitronium ion directly rather than simply protonating it", w:["It reduces nitric acid to a weaker oxidizing agent", "It simply dissolves nitric acid without reacting", "It converts nitric acid into nitrous acid"]},
+  {q:"Why does nitric acid act as a base in the H2SO4/HNO3 mixture, even though it is an acid on its own?", c:"Because sulfuric acid is a far stronger acid, so relative to it, nitric acid behaves as the weaker, base-like species", w:["Because nitric acid is inherently unstable", "Because water is present in excess", "Because nitric acid has a lower molecular weight"]},
+  {q:"What advantage do stable nitronium salts like NO2+BF4- offer over the ordinary mixed-acid method?", c:"They nitrate aromatic compounds smoothly and in high yield at room temperature, without needing the mixed-acid system", w:["They require higher temperatures than mixed acid", "They only work in the gas phase", "They produce lower yields than mixed acid"]},
+  {q:"In what solvents did Olah dissolve nitronium salts to nitrate aromatics?", c:"Nitromethane or acetic acid", w:["Concentrated sulfuric acid only", "Liquid ammonia", "Diethyl ether"]},
+  {q:"Why does the nitronium ion specifically seek out the benzene ring?", c:"Because it needs electrons, and the ring's π cloud makes them particularly available", w:["Because it repels the ring's electrons", "Because it is a strong reducing agent", "Because it is more soluble in water than in the ring"]},
+  {q:"What overall type of reaction is step (1) of nitration, generation of NO2+?", c:"An acid-base equilibrium", w:["A radical chain reaction", "A single irreversible oxidation", "A purely physical dissolution process"]},
+  {q:"Why are structures I, II, and III considered resonance structures of one ion rather than three separate ions?", c:"They differ only in the position of double bonds and formal charge, not in atomic connectivity — they describe one real, delocalized ion", w:["They differ in which atoms are bonded to each other", "They represent three separate, interconverting molecules", "They differ only in overall molecular formula"]},
+  {q:"Why is the arenium ion more stable than it would be if its charge were localized on a single carbon?", c:"Because resonance disperses the positive charge over several ring carbons, lowering the ion's overall energy", w:["Because the charge becomes fully localized on one carbon", "Because a new covalent bond to oxygen forms", "Because the ring becomes negatively charged"]},
+  {q:"What does the dashed circle in structure IV represent?", c:"The fractional bonding caused by the delocalized π electrons spread over the ring", w:["A full double bond between two specific carbons", "A complete absence of charge on the ring", "An extra hydrogen atom added to the ring"]},
+  {q:"Why does resonance stabilization likely determine whether the arenium ion forms at all?", c:"Because benzene itself is so stable that only a sufficiently stabilized intermediate could compete with it and actually form", w:["Because benzene is actually quite unstable", "Because the arenium ion has no resonance stabilization at all", "Because nitration is thermodynamically irreversible"]},
+  {q:"In the arenium ion, do the ortho/para carbons or the ipso carbon carry more positive character?", c:"The ortho and para carbons carry more positive character than the ipso (substituent-bearing) carbon", w:["The ipso carbon carries more positive character", "All carbons carry exactly equal positive character", "The meta carbons carry the most positive character"]},
+  {q:"How does formation of the arenium ion resemble addition to alkenes?", c:"In both, an electrophile drawn in by π electrons attaches to the molecule, forming a carbocation intermediate", w:["Both involve loss of a proton in the very first step", "Both proceed without forming any intermediate", "Both require a radical initiator"]},
+  {q:"Why would addition of a nucleophile to the arenium ion be unfavorable compared with losing a proton?", c:"Addition would destroy the ring's aromatic stabilization, while proton loss restores it", w:["Because a nucleophile is never available in solution", "Because addition would form a stronger bond overall", "Because addition happens faster than proton loss"]},
+  {q:"What does the substitution-vs-addition contrast reveal about what drives aromatic reactivity?", c:"That aromatic stabilization energy, not just carbocation stability, governs which pathway is favored", w:["That carbocation stability alone explains all aromatic reactivity", "That aromatic rings never form carbocation intermediates", "That addition is always more favorable for benzene"]},
+  {q:"Given benzene's stability, why does the arenium ion form at all despite being difficult to generate?", c:"Because the arenium ion is itself resonance-stabilized enough to make its formation feasible, even against benzene's aromaticity", w:["Because the arenium ion is actually less stable than benzene", "Because proton loss occurs before the ion ever forms", "Because benzene has no aromatic stabilization to compete with"]},
+  {q:"Why is loss of H+ described as \"typical\" behavior for a carbonium ion in general?", c:"Because eliminating H+ is a general reaction available to carbocations, and it happens to be the preferred one here", w:["Because H+ loss is thermodynamically impossible in other cases", "Because carbocations can never lose a proton", "Because only aromatic carbocations can lose H+"]},
+  {q:"What would happen to product stability if the ring kept both the electrophile and a nucleophile instead of losing H+?", c:"It would lose the resonance/aromatic stabilization benzene rings have, making that addition product less stable than the substitution product", w:["It would be equally stable as the substitution product", "It would be more stable due to extra bonding", "It would be unaffected, since aromaticity is irrelevant here"]},
+  {q:"Why is arenium-ion formation, not proton loss, the \"more difficult\" step overall?", c:"Forming the ion disrupts benzene's aromatic system, while proton loss simply restores that stable, delocalized system", w:["Because proton loss actually disrupts the aromatic system", "Because forming the ion restores aromaticity immediately", "Because both steps are equally difficult"]},
+  {q:"Why do essentially all electrophilic aromatic substitutions share the same two-step mechanism, regardless of reagent?", c:"Because in every case an electrophile attacks the π system to form a resonance-stabilized arenium ion, then a base removes a proton to restore aromaticity — only how the electrophile is made changes", w:["Because each reagent uses an entirely different mechanism", "Because only nitration and sulfonation share this pattern", "Because the electrophile is always identical across reactions"]},
+  {q:"In the generic YZ mechanism, what forms when Y- removes a proton from the arenium ion?", c:"YH forms, and the aromatic ring (now bearing X instead of H) is restored", w:["X+ and Y- recombine into the original reagent", "The arenium ion becomes negatively charged", "A second electrophile attacks the ring"]},
+  {q:"Why does the identity of the base \"Y\" (HSO4-, AlCl4-, FeCl4-, etc.) differ between reactions even though the overall mechanism is identical?", c:"Because each electrophile is generated by a different acid-base or Lewis acid-base process, producing a different associated leaving group/base", w:["Because the base is chosen at random each time", "Because temperature alone determines the base identity", "Because all EAS reactions actually use the same base"]},
+  {q:"What makes electrophilic addition to alkenes and electrophilic aromatic substitution similar in their first step, but different overall?", c:"Both begin with electrophile attack forming a carbocation, but the carbocation's fate differs — alkenes undergo addition, arenium ions undergo substitution", w:["Alkenes always form arenium ions like benzene does", "Aromatic substitution never forms a carbocation intermediate", "Both reactions proceed only by a radical mechanism"]},
+  {q:"Why is the generic two-step mechanism useful for predicting new EAS reactions?", c:"Because any new electrophile YZ can be expected to follow the same slow-attack/fast-deprotonation pattern", w:["Because it eliminates the need to identify an electrophile", "Because it applies only to nitration and sulfonation", "Because it predicts reaction rates precisely without experiment"]},
+  {q:"Why is SO3 considered an acid even though it carries no formal positive charge?", c:"Because it is electron-deficient, making it a Lewis acid able to accept electron density from the ring", w:["Because it is a strong reducing agent", "Because it carries a full negative charge", "Because it dissolves readily in water without reacting"]},
+  {q:"How is SO3 generated in the sulfonation mechanism?", c:"Through an acid-base equilibrium between molecules of sulfuric acid itself", w:["Through direct reaction between benzene and SO3 gas", "Through reduction of sulfate ion", "Through thermal decomposition of benzenesulfonic acid"]},
+  {q:"Why is fuming sulfuric acid (excess SO3) commonly used for sulfonation?", c:"High concentration of the electrophile SO3 and low water concentration shift the equilibrium toward the sulfonic acid product", w:["Because low SO3 and high water favor the product", "Because fuming acid lowers the reaction temperature needed", "Because fuming acid prevents any equilibrium from being established"]},
+  {q:"Why might HSO3+ act as the electrophile in some sulfonations instead of SO3?", c:"At certain acidities, molecules able to readily transfer SO3 or HSO3+ to the ring may be the actual electrophile", w:["Because SO3 is never available under any conditions", "Because HSO3+ is always the exclusive electrophile", "Because sulfonation cannot occur without HSO3+"]},
+  {q:"Why is benzenesulfonic acid described as \"highly dissociated\"?", c:"Because it is a strong acid, so it ionizes essentially completely in solution", w:["Because it forms insoluble precipitates", "Because it has an unusually high boiling point", "Because it lacks resonance stabilization"]},
+  {q:"What does step (1) of sulfonation (generating SO3) share mechanistically with step (1) of nitration (generating NO2+)?", c:"Both are acid-base equilibria that generate the active electrophile before it ever touches the ring", w:["Because nitration also proceeds through a Lewis acid, not Brønsted", "Because both electrophiles are neutral molecules", "Because SO3 and NO2+ never form arenium-type intermediates"]},
+  {q:"Why does high water concentration favor desulfonation instead of sulfonation?", c:"Water is a product of sulfonation, so raising its concentration shifts the equilibrium back toward benzene and sulfuric acid", w:["Because water reacts irreversibly with benzene", "Because water destroys the sulfonic acid's structure permanently", "Because water has no role in this equilibrium"]},
+  {q:"Why does removing benzene by steam distillation help drive desulfonation forward?", c:"Continuously removing a product (volatile benzene) pulls the equilibrium further toward the hydrocarbon side", w:["Because it increases the acid's concentration", "Because it directly bonds to and destroys the sulfonic acid group", "Because it cools the reaction mixture"]},
+  {q:"What does microscopic reversibility imply about the transition states of sulfonation and desulfonation?", c:"The reverse reaction must pass through the exact same intermediates and transition states as the forward reaction, in reverse order", w:["It implies the forward and reverse reactions use unrelated intermediates", "It applies only to reactions without any acid catalyst", "It means the reaction rate is identical in both directions"]},
+  {q:"Why is desulfonation also called \"protodesulfonation\"?", c:"Because the electrophile in this substitution is specifically a proton, H+, replacing the sulfonic acid group", w:["Because it involves loss of two protons instead of one", "Because it produces sulfate ion as the electrophile", "Because the proton is delivered by SO3 itself"]},
+  {q:"How do the water-concentration conditions for sulfonation and desulfonation contrast?", c:"Sulfonation favors low water (excess SO3); desulfonation favors high water (dilute acid, steam)", w:["Sulfonation favors high water; desulfonation favors low water", "Both are favored equally by high water concentration", "Water concentration has no effect on either reaction"]},
+  {q:"Why can chemists steer the sulfonation/desulfonation reaction in either direction just by changing conditions?", c:"Because it is a true equilibrium, so standard equilibrium principles (concentration, product removal) can shift it either way", w:["Because it is not actually a true equilibrium", "Because only temperature, not concentration, can be varied", "Because the reaction is irreversible in one direction"]},
+  {q:"Why is the RCl + AlCl3 equilibrium in alkylation called a Lewis, not Brønsted, acid-base reaction?", c:"AlCl3 accepts an electron pair from chloride rather than transferring a proton, generating R+ and AlCl4-", w:["Because AlCl3 transfers a proton to chloride", "Because RCl acts as the acid and AlCl3 as the base", "Because the reaction only occurs in aqueous solution"]},
+  {q:"Under what circumstance does Friedel–Crafts alkylation proceed without a genuinely free carbocation?", c:"In certain cases where the alkyl group transfers directly from the polar RCl–AlCl3 complex to the ring", w:["Whenever excess AlCl3 is removed from solution", "Only when benzene itself is absent from the mixture", "Only at temperatures below 0 °C"]},
+  {q:"What are the two possible identities of the electrophile in Friedel–Crafts alkylation?", c:"A free carbocation, R+, or a polar complex that can readily transfer R+ to the ring", w:["A free radical, R•, and nothing else", "Only an alkoxide ion, RO-", "Only a carbanion, R-"]},
+  {q:"Why is this duality of mechanism described as common in electrophilic aromatic substitution generally?", c:"Because several EAS reactions show the same pattern — the electrophile may be a free cation or delivered from a polarized complex", w:["Because it only ever occurs in Friedel–Crafts alkylation", "Because it contradicts the single-mechanism idea entirely", "Because it applies only to halogenation, not alkylation"]},
+  {q:"What two things are ultimately regenerated or released at the end of the alkylation catalytic cycle?", c:"AlCl3 is regenerated, and HCl is released as a byproduct", w:["AlCl4- is destroyed and Cl2 is released", "RCl is regenerated instead of AlCl3", "No byproducts form in this cycle"]},
+  {q:"Why does the acylium ion form specifically via cleavage of the C–Cl bond in the AlCl3–acyl chloride complex?", c:"AlCl3 coordinates to the chlorine, polarizing and eventually breaking the C–Cl bond so the acyl group departs as a resonance-stabilized cation", w:["Because AlCl3 reduces the acyl chloride directly", "Because the C=O bond breaks first, before C–Cl", "Because chlorine is the more electronegative atom, unrelated to AlCl3"]},
+  {q:"How is the acylium ion's positive charge stabilized by resonance?", c:"The charge is shared between the carbonyl carbon and the oxygen, via delocalization of the C=O system", w:["The charge is localized entirely on the chlorine atom", "The charge is stabilized only by the aluminum center", "There is no resonance stabilization in the acylium ion"]},
+  {q:"Why does Friedel–Crafts acylation cleanly stop at monoacylation?", c:"The aryl ketone product is electron-withdrawing and deactivates the ring, making further acylation on the same ring far less favorable", w:["Because acylium ions are too unreactive to attack the ring at all", "Because AlCl3 is entirely consumed after one acylation", "Because the ring becomes positively charged permanently"]},
+  {q:"What are the three general steps of Friedel–Crafts acylation, in order?", c:"(1) Formation of the acylium electrophile, (2) electrophilic attack forming a carbonium ion, (3) loss of a proton to give the ketone", w:["Formation of electrophile, loss of proton, then ring attack", "Ring attack, formation of electrophile, then loss of proton", "Loss of proton, ring attack, then formation of electrophile"]},
+  {q:"Why is the leaving complex written as an anion (Cl–AlCl3-) in acylation?", c:"AlCl3, acting as a Lewis acid, accepts chloride's electron pair, leaving AlCl3 bonded to Cl with an overall negative charge", w:["Because chlorine becomes positively charged instead", "Because AlCl3 loses an electron to chlorine", "Because the complex is actually neutral overall"]},
+  {q:"Why is a free Cl+ ion considered unlikely to exist during aromatic chlorination?", c:"Chlorine transfers to the ring from a polarized Cl2–FeCl3 complex without ever fully forming an independent Cl+ cation", w:["Because Cl2 is too unreactive to form any complex with FeCl3", "Because Cl+ is directly detected by spectroscopy", "Because chlorination proceeds by a radical mechanism instead"]},
+  {q:"How does halogen addition to alkenes differ from aromatic halogenation, despite both involving \"positive halogen\"?", c:"Alkenes are reactive enough that X2 supplies positive halogen directly, with loss of X-; benzene needs FeCl3's assistance", w:["Because alkenes require a Lewis acid catalyst, just like benzene", "Because benzene reacts faster with X2 than alkenes do", "Because both mechanisms are entirely identical"]},
+  {q:"Why can some very reactive aromatics react with halogens without any Lewis acid catalyst?", c:"Their ring electrons are more available, making the ring nucleophilic enough to attack X2 without help", w:["Their rings are less reactive than benzene's", "They react only in the gas phase", "They require even more forcing conditions than benzene"]},
+  {q:"What role does FeCl3 play mechanistically in aromatic halogenation?", c:"It complexes with Cl2, polarizing the Cl–Cl bond for delivery to the ring, and later helps remove the proton as FeCl4-", w:["It generates the acidic byproduct HCl", "It reduces Cl2 to chloride directly", "It has no functional role in the mechanism"]},
+  {q:"Why is FeCl4- described as a \"better\" leaving group in the final step of halogenation?", c:"It is a stable, weakly coordinating anion that readily departs after abstracting the proton, regenerating FeCl3", w:["Because it is a stronger acid than HCl", "Because it forms a covalent bond to hydrogen permanently", "Because it is smaller and more reactive than chloride"]},
+];
+
+const quizHard = [
+  {q:"The nitration equilibrium is HNO3 + 2H2SO4 ⇌ H3O+ + 2HSO4- + NO2+. Why are two equivalents of H2SO4 required?", c:"One H2SO4 protonates the OH of HNO3, which then loses water to release NO2+; a second H2SO4 is needed to protonate that departing water molecule, forming H3O+", w:["Because each H2SO4 donates two protons", "Because HNO3 requires two separate oxidation steps", "Because two H2SO4 molecules are needed to form H3O+ alone, unrelated to NO2+ release"]},
+  {q:"Compare mixed-acid nitration to Olah's nitronium-salt method in terms of what limits the rate.", c:"In mixed-acid nitration, NO2+ generation from HNO3/H2SO4 precedes ring attack, so rate can depend on electrophile generation; with pre-formed nitronium salts, the rate-determining step is purely ring attack", w:["In both cases ring attack alone determines the rate", "With nitronium salts, electrophile generation is still rate-determining", "Mixed-acid nitration has no rate-determining step at all"]},
+  {q:"Why is the H2SO4/HNO3 reaction described as an \"acid-base equilibrium\" rather than irreversible?", c:"It is a reversible proton-transfer/dehydration process governed by relative acid strengths, denoted with a double-headed equilibrium arrow", w:["Because it releases oxygen gas as a byproduct", "Because it always goes to completion instantly", "Because it produces only neutral products"]},
+  {q:"Predict the effect of adding a large excess of water to a mixed-acid nitration mixture, using Le Chatelier's principle.", c:"Excess water shifts the equilibrium back toward HNO3 and H2SO4, lowering NO2+ concentration and slowing nitration", w:["NO2+ concentration would increase sharply", "The reaction rate would be unaffected", "Nitration would proceed only faster, not slower"]},
+  {q:"Why does the nitronium ion, despite being a strong electrophile, still need an electron-rich substrate like benzene?", c:"NO2+ has no electrons to offer for bonding; it must accept an electron pair, so it depends on a substrate whose π electrons are sufficiently available", w:["Because NO2+ is negatively charged and needs a cation partner", "Because benzene is unreactive toward any electrophile without heat", "Because NO2+ preferentially reacts with water instead"]},
+  {q:"Why is the arenium ion best described as one species (IV), not a mixture of I, II, and III?", c:"I–III share identical atomic positions and differ only in electron/charge placement on paper; the real molecule has its charge delocalized across all three positions simultaneously", w:["Because I, II, and III interconvert slowly by bond rotation", "Because each structure represents a different stable compound with a different formula", "Because IV has a different molecular formula than I, II, and III"]},
+  {q:"Using resonance theory, why do ortho and para carbons bear more positive character than meta carbons in the arenium ion?", c:"Only structures placing the + charge at ortho- or para-type carbons are valid resonance forms; no analogous structure places positive charge on a meta carbon", w:["Because meta-substituted resonance structures are also valid and equally weighted", "Because positive charge only ever forms on the ipso carbon", "Because resonance structures are drawn randomly without electronic justification"]},
+  {q:"Why doesn't resonance in the arenium ion fully restore benzene's original aromatic stabilization?", c:"One ring carbon is sp3 and out of conjugation, breaking the continuous six-π-electron system; delocalization over the other five carbons is only partial stabilization", w:["Because it converts an aromatic ring into a fully saturated ring", "Because only four of the six ring carbons participate at all", "Because it fully restores six-electron aromaticity, identical to benzene"]},
+  {q:"Relate the arenium ion's difficult formation to the overall stability comparison with benzene.", c:"Benzene is already highly stabilized by aromaticity, so forming a less-stabilized sp3-containing intermediate requires overcoming a large barrier; proton loss is downhill back toward aromaticity, so it's fast", w:["The rate would be unaffected, since resonance never influences reaction rate", "The reaction would proceed faster, since less stabilization is needed", "Formation would become the fast step instead of proton loss"]},
+  {q:"If the arenium ion's charge were fully localized (no resonance), how would EAS rate be affected, and why?", c:"The rate would drop sharply, since the unstabilized intermediate would be far higher in energy, raising the activation barrier of the already-difficult formation step", w:["The rate would increase, since less stabilization means a lower barrier", "The reaction would stop entirely, with no product forming", "Proton loss would then become the rate-determining step instead"]},
+  {q:"Contrast the fate of an alkene's carbocation with the arenium ion, and explain the thermodynamic reason.", c:"The alkene carbocation is quenched by nucleophile addition since nothing more stable awaits it; the arenium ion loses a proton instead, because that regenerates the far more stable aromatic ring", w:["Both are quenched by a nucleophile, for identical thermodynamic reasons", "The alkene carbocation loses a proton, while the arenium ion adds a nucleophile", "Neither carbocation reacts further under any conditions"]},
+  {q:"Why can EAS be considered a special case of the broader pattern seen in electrophilic addition?", c:"Both begin identically — an electrophile drawn by π electrons bonds covalently, forming a carbocation — diverging only afterward based on which pathway is thermodynamically favored", w:["Because both proceed exclusively through radical intermediates", "Because EAS never forms a carbocation intermediate, unlike addition", "Because addition to alkenes cannot involve an electrophile at all"]},
+  {q:"Predict what happens mechanistically if the base Y- in the general EAS mechanism were a very weak base.", c:"Proton abstraction would become slower, possibly becoming rate-limiting instead of electrophile attack, or the arenium ion could be trapped by other pathways", w:["Electrophile attack would instead become the slow, rate-limiting step by default in all cases", "The reaction would speed up regardless of the base's strength", "The arenium ion would never form in the first place"]},
+  {q:"Evaluate the claim that EAS proceeds by \"a single mechanism\" using the Friedel–Crafts alkylation duality (free R+ vs. complex transfer) as a test case.", c:"The claim holds at the level of the two overall stages, but the duality shows the electrophile itself may arrive as a free cation or bound in a complex — so the claim describes the general kinetic pattern, not the literal identity of every attacking species", w:["The claim is entirely false, since no shared mechanism exists across EAS reactions", "The duality proves electrophile attack is never rate-determining", "The duality shows the two-step pattern applies only to alkylation"]},
+  {q:"Why might sulfonation (SO3) and nitration (NO2+) be considered mechanistically parallel despite SO3 having no formal charge?", c:"Both act as electron-pair acceptors (Lewis acids) toward the ring's π system regardless of formal charge, forming the same kind of resonance-stabilized arenium intermediate", w:["Because NO2+ and SO3 have identical formal charges", "Because sulfonation, unlike nitration, does not form an arenium-type intermediate", "Because SO3 is a nucleophile, not an electrophile, toward the ring"]},
+  {q:"Using microscopic reversibility, why must H+ attack the same carbon in desulfonation that originally bore SO3H?", c:"The reverse reaction must traverse the identical intermediates and transition states as the forward reaction, so protonation must occur at that same carbon", w:["Because H+ can add to any ring carbon with equal probability", "Because the forward and reverse reactions use entirely unrelated pathways", "Because SO3 departs from a random ring position, not a fixed one"]},
+  {q:"In desulfonation's two equilibria — (1) protonation to an arenium intermediate, (2) loss of SO3 — which step is rate-determining, and why?", c:"Step (1), protonation to form the resonance-stabilized arenium ion, is rate-determining (slow), by analogy with every other EAS mechanism; loss of SO3, restoring aromaticity, is fast", w:["Step (2), loss of SO3, is rate-determining because it releases a neutral molecule", "Both steps proceed at identical, non-negotiable rates", "Step (1) is fast because protonation is always instantaneous"]},
+  {q:"Why is manipulating both steam AND acid concentration more effective for desulfonation than either alone?", c:"Steam supplies excess water (shifting the equilibrium) and physically removes volatile benzene by distillation, so the two effects act on different sides of the same equilibrium simultaneously", w:["Because steam only affects temperature, not equilibrium position", "Because acid concentration is irrelevant to this particular equilibrium", "Because steam actually favors sulfonation, not desulfonation"]},
+  {q:"Would a benzenesulfonic acid bearing an electron-donating group desulfonate faster or slower than the parent compound, and why?", c:"Faster — an electron-donating group makes the ring better able to stabilize the developing positive charge in the rate-determining protonation step, lowering its activation energy", w:["Slower, since electron donation destabilizes the transition state", "Unaffected, since substituents never influence electrophilic steps", "Slower, since electron-donating groups always poison the catalyst"]},
+  {q:"Why can sulfonation act as a temporary \"blocking group\" strategy in synthesis?", c:"Because it can be cleanly reversed by desulfonation under defined conditions, so SO3H can block a position during other reactions, then be removed to regenerate the hydrocarbon", w:["Because sulfonation is completely irreversible once performed", "Because SO3H groups cannot be removed under any conditions", "Because desulfonation destroys the aromatic ring permanently"]},
+  {q:"Why doesn't Friedel–Crafts acylation suffer the carbocation rearrangement problems that can plague alkylation?", c:"The acylium ion's charge is resonance-stabilized between carbon and oxygen, so it need not rearrange to a more stable structure the way a simple alkyl carbocation might", w:["Because the acylium ion is far more reactive and unstable than R+", "Because AlCl3 cannot interact with acid chlorides at all", "Because alkylation never produces a carbocation intermediate"]},
+  {q:"Compare the role of AlCl3 in alkylation versus acylation in terms of the bond it helps cleave.", c:"In both, AlCl3 coordinates to chlorine as a Lewis acid; in alkylation it helps cleave the alkyl C–Cl bond to release R+, while in acylation it cleaves the acyl C–Cl bond to release RCO+", w:["AlCl3 cleaves only C–H bonds in both cases", "In acylation AlCl3 cleaves the C=O bond instead of C–Cl", "AlCl3 plays no role in bond cleavage in either reaction"]},
+  {q:"What mechanistic consequence follows from \"no free carbonium ion\" in certain alkylations?", c:"Since the alkyl group transfers directly from the polar complex without forming a free, planar carbocation, there is less opportunity for it to rearrange before bonding to the ring", w:["It has no effect, since the electrophile is unaffected either way", "It means the alkyl group is instead transferred as a free radical", "It causes the reaction to proceed by nucleophilic substitution instead"]},
+  {q:"Using ring deactivation, why is Friedel–Crafts acylation more synthetically reliable than alkylation for a single product?", c:"The ketone product deactivates the ring, self-limiting the reaction to monoacylation; alkylbenzene products are more activated than benzene, favoring over-alkylation", w:["Because acylation is actually less selective and gives more side products", "Because alkylbenzene products are less reactive than benzene toward further attack", "Because ring deactivation has no bearing on how many substitutions occur"]},
+  {q:"Using resonance stabilization of the acylium ion, predict which Friedel–Crafts reaction gives cleaner mono-substitution, and why.", c:"Acylation, because the resonance-stabilized acylium electrophile reacts without over-reaction, self-limited by the deactivating ketone product, unlike alkylation's activated ring", w:["Alkylation, because R+ is more resonance-stabilized than an acylium ion", "Both reactions give identical selectivity for mono-substitution", "Neither reaction can be controlled by resonance effects at all"]},
+  {q:"Compare the mechanistic role of FeCl3 in halogenation to AlCl3 in alkylation, in Lewis-acid terms.", c:"Both are Lewis acids that coordinate to a halide, polarizing or cleaving that bond to generate a potent electrophile, while forming a stabilized anion (FeCl4- or AlCl4-) as leaving group", w:["Both catalysts function purely as reducing agents in these reactions", "FeCl3 and AlCl3 accomplish entirely unrelated chemical roles", "Only AlCl3 is a genuine Lewis acid; FeCl3 acts as a Brønsted acid"]},
+  {q:"Why can electron-rich aromatics react with X2 without a Lewis acid catalyst, while benzene cannot, in terms of the rate-determining step?", c:"Since ring attack is rate-determining, a sufficiently electron-rich ring can attack the halogen-halogen bond directly without needing FeCl3 to pre-polarize it; benzene's electrons are less available", w:["Because benzene's ring is actually more electron-rich than these reactive aromatics", "Because the rate-determining step for these aromatics is catalyst regeneration, not ring attack", "Because Lewis acids always slow down reactions with electron-rich rings"]},
+  {q:"What is the key mechanistic divergence between halogen addition to alkenes and aromatic halogenation, despite both involving \"positive halogen\"?", c:"Alkenes get positive halogen directly from X2 without catalytic help and undergo addition; benzene needs FeCl3 to generate the electrophile and undergoes substitution to preserve aromaticity", w:["Both mechanisms are mechanistically identical with no divergence at all", "Aromatic halogenation proceeds by addition, just like alkenes do", "Alkene halogenation always requires a Lewis acid catalyst too"]},
+  {q:"Across all six reactions discussed, what single feature do all rate-determining steps share, and why is it significant?", c:"Every rate-determining step is electrophilic attack on the ring forming a resonance-stabilized arenium ion, since this requires disrupting aromaticity — showing reactivity is governed by the same underlying barrier regardless of electrophile", w:["Every rate-determining step instead involves loss of a proton, not ring attack", "The rate-determining steps differ completely from reaction to reaction with no shared feature", "Aromaticity plays no role in any of the six mechanisms"]},
+  {q:"Why is EAS described as \"like addition to alkenes\" in its first step but fundamentally different overall?", c:"Both begin with an electrophile bonding to form a carbocation, but the arenium ion has a highly stabilized aromatic state to return to via proton loss, making substitution the favored outcome for aromatics", w:["Because both proceed by identical radical mechanisms throughout", "Because alkenes also restore aromaticity after electrophilic attack", "Because substitution and addition give chemically identical products"]},
+  {q:"Why do nitronium salts dissolved in nitromethane react \"smoothly,\" contrasted with the aqueous mixed-acid system?", c:"Nitromethane is inert and non-nucleophilic, so it doesn't compete with the ring for NO2+ or hydrolyze it back to nitric acid, unlike water in the mixed-acid system", w:["Because nitromethane reacts with NO2+ to form a more stable electrophile", "Because water is actually a better solvent for this reaction", "Because nitromethane is strongly basic and activates the ring"]},
+  {q:"Why is formation of the electrophile (NO2+, SO3, R+) not counted among the \"two essential steps\" of EAS?", c:"The two steps describe what happens to the substrate itself; generating the electrophile is a separate, often reversible process occurring in the reagent system beforehand", w:["Because electrophile formation is actually the rate-determining step in every case", "Because the substrate is never involved in generating its own electrophile", "Because only two steps exist in total across the whole synthesis, including electrophile formation"]},
+  {q:"Why is a second electrophile attacking the arenium ion before proton loss not observed under normal EAS conditions?", c:"The arenium ion is a transient cation; a second, positively charged electrophile would be electrostatically repelled, and proton loss to rearomatize is kinetically much faster", w:["Because a second electrophile would bond covalently before the first is removed", "Because the arenium ion is negatively charged, attracting more electrophiles", "Because proton loss is actually slower than a second electrophilic attack"]},
+  {q:"Contrast why sulfonation's equilibrium is easily reversed while nitration is treated as essentially irreversible.", c:"Benzenesulfonic acid can revert to SO3 and benzene under the right conditions because the elimination pathway competes readily; nitrobenzene has no analogous facile reverse process", w:["Because nitrobenzene readily reverts to benzene and HNO3 under mild heating", "Because sulfonation, unlike nitration, cannot be driven in either direction", "Because nitration and sulfonation are mechanistically unrelated to reversibility"]},
+  {q:"Predict the outcome if desulfonation were run in a sealed vessel at 150 °C with no steam distillation.", c:"Without removing volatile benzene, the system would simply approach its equilibrium position rather than being driven to near completion, since extensive conversion depends on continuous benzene removal", w:["The reaction would still go essentially to completion without steam", "The equilibrium would shift entirely toward benzene regardless of removal", "Desulfonation would stop occurring altogether without steam present"]},
+  {q:"Why are acylium ions generally considered milder, more selective electrophiles than simple alkyl carbocations?", c:"Their positive charge is delocalized over carbon and oxygen via resonance, moderating their effective electrophilicity compared to an unstabilized carbocation", w:["Because acylium ions carry a larger formal positive charge than R+", "Because acylium ions are unstable and rarely form at all", "Because acylium ions are stronger nucleophiles than carbocations"]},
+  {q:"Why is FeCl4-, rather than plain Cl-, the base used in the deprotonation step of halogenation significant?", c:"FeCl4- forms directly from the catalytic cycle as a stable, weakly basic anion well suited to abstracting the proton and departing cleanly, regenerating FeCl3", w:["Because chloride ion cannot be produced under any Lewis acid conditions", "Because FeCl4- is a stronger acid than HCl itself", "Because plain chloride would react irreversibly with the ring instead"]},
+  {q:"Why do most of these six reactions require Lewis or Brønsted acid assistance to proceed?", c:"The acid either converts a poor electrophile into a genuine one (HNO3 to NO2+, RCl to R+) or polarizes a reagent enough to attack benzene's comparatively unreactive aromatic system", w:["Because these reagents are already electrophilic enough on their own", "Because acids serve only to control reaction temperature", "Because acid catalysts primarily prevent side reactions, not generate electrophiles"]},
+  {q:"Why are the arenium ions formed across nitration, sulfonation, alkylation, acylation, and halogenation all structurally analogous?", c:"In each case one ring carbon becomes sp3 while the remaining electrons delocalize with positive charge ortho/para to the new group — a pattern independent of which substituent is attached", w:["Because each substituent creates a completely different resonance pattern", "Because only nitration and sulfonation give comparable arenium ions", "Because the ring itself changes hybridization differently for each substituent"]},
+  {q:"How would the equilibrium principles used for sulfonation/desulfonation apply, in principle, to reversing a Friedel–Crafts alkylation?", c:"Reversing alkylation would require shifting the R+ + AlCl4- ⇌ RCl + AlCl3 equilibrium and ring-attack equilibrium backward, though this reverse process is not emphasized the way desulfonation is", w:["Reversing alkylation would require an entirely different, unrelated mechanism", "Alkylation cannot be reversed under any equilibrium conditions", "Equilibrium principles apply only to sulfonation, not to any other EAS reaction"]},
 ];
 
 function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
 
+const quizLevels = [
+  {key:'easy', label:'Level 1 · Easy', sub:'60 questions', data:quizEasy},
+  {key:'medium', label:'Level 2 · Medium', sub:'50 questions', data:quizMedium},
+  {key:'hard', label:'Level 3 · Hard', sub:'40 questions', data:quizHard}
+];
+let currentQuizLevel = 'easy';
+
+function currentQuizBank(){
+  return quizLevels.find(l=>l.key===currentQuizLevel).data;
+}
+
 function buildQuiz(){
+  const bank = currentQuizBank();
   const list = document.getElementById('quiz-list');
   list.innerHTML = '';
-  quizBank.forEach((item, qi) => {
+  bank.forEach((item, qi) => {
     const options = shuffle([{text:item.c, correct:true}, ...item.w.map(t=>({text:t, correct:false}))]);
     const wrap = document.createElement('div');
     wrap.className = 'q-item';
@@ -823,7 +1115,7 @@ function buildQuiz(){
           <input type="radio" name="q${qi}" value="${oi}"> <span>${opt.text}</span>
         </label>`;
     });
-    wrap.innerHTML = `<div class="q-num">QUESTION ${qi+1} OF ${quizBank.length}</div>
+    wrap.innerHTML = `<div class="q-num">QUESTION ${qi+1} OF ${bank.length}</div>
       <div class="q-text">${item.q}</div>
       <div class="q-options">${optsHTML}</div>`;
     list.appendChild(wrap);
@@ -832,7 +1124,7 @@ function buildQuiz(){
 }
 
 function updateScorePill(){
-  const total = quizBank.length;
+  const total = currentQuizBank().length;
   const answered = document.querySelectorAll('#quiz-list input[type=radio]:checked').length;
   document.getElementById('quiz-score').textContent = answered + ' / ' + total + ' answered';
 }
@@ -856,11 +1148,28 @@ document.getElementById('quiz-check').addEventListener('click', () => {
       }
     }
   });
-  document.getElementById('quiz-score').textContent = correctCount + ' / ' + quizBank.length + ' correct';
+  document.getElementById('quiz-score').textContent = correctCount + ' / ' + currentQuizBank().length + ' correct';
 });
+
+function buildQuizLevelPills(){
+  const wrap = document.getElementById('quiz-level-pills');
+  wrap.innerHTML = '';
+  quizLevels.forEach(lvl => {
+    const b = document.createElement('button');
+    b.className = 'pill' + (lvl.key === currentQuizLevel ? ' active' : '');
+    b.textContent = lvl.label + ' — ' + lvl.sub;
+    b.addEventListener('click', () => {
+      currentQuizLevel = lvl.key;
+      buildQuizLevelPills();
+      buildQuiz();
+    });
+    wrap.appendChild(b);
+  });
+}
 
 document.getElementById('quiz-reshuffle').addEventListener('click', buildQuiz);
 
+buildQuizLevelPills();
 buildQuiz();
 </script>
 </body>
